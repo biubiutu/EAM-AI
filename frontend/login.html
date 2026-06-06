@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-EAM 智能资产管理系统 - 登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 420px;
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .form-container {
+            padding: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            margin-top: 10px;
+        }
+        .toggle-form {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+        }
+        .toggle-form a {
+            color: #667eea;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .toggle-form a:hover {
+            text-decoration: underline;
+        }
+        .error-msg {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        .success-msg {
+            color: #27ae60;
+            font-size: 14px;
+            margin-top: 10px;
+            text-align: center;
+            display: none;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AI-EAM 智能资产管理系统</h1>
+            <p>Equipment Asset Management System</p>
+        </div>
+        
+        <div class="form-container">
+            <!-- 登录表单 -->
+            <div id="loginForm">
+                <h2 style="text-align:center; margin-bottom:20px; color:#333;">用户登录</h2>
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="loginUsername" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="loginPassword" placeholder="请输入密码">
+                </div>
+                <button class="btn btn-primary" onclick="handleLogin()">登 录</button>
+                <div class="toggle-form">
+                    还没有账号？<a onclick="showRegister()">立即注册</a>
+                </div>
+                <div class="error-msg" id="loginError"></div>
+            </div>
+
+            <!-- 注册表单 -->
+            <div id="registerForm" class="hidden">
+                <h2 style="text-align:center; margin-bottom:20px; color:#333;">用户注册</h2>
+                <div class="form-group">
+                    <label>用户名</label>
+                    <input type="text" id="regUsername" placeholder="请输入用户名">
+                </div>
+                <div class="form-group">
+                    <label>密码</label>
+                    <input type="password" id="regPassword" placeholder="请输入密码">
+                </div>
+                <div class="form-group">
+                    <label>确认密码</label>
+                    <input type="password" id="regConfirm" placeholder="请再次输入密码">
+                </div>
+                <div class="form-group">
+                    <label>真实姓名</label>
+                    <input type="text" id="regRealName" placeholder="请输入真实姓名">
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="regEmail" placeholder="请输入邮箱">
+                </div>
+                <div class="form-group">
+                    <label>手机号</label>
+                    <input type="tel" id="regPhone" placeholder="请输入手机号">
+                </div>
+                <button class="btn btn-primary" onclick="handleRegister()">注 册</button>
+                <div class="toggle-form">
+                    已有账号？<a onclick="showLogin()">立即登录</a>
+                </div>
+                <div class="error-msg" id="regError"></div>
+                <div class="success-msg" id="regSuccess"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = window.location.origin + '/api/v1';
+
+        function showRegister() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.remove('hidden');
+            clearMsgs();
+        }
+
+        function showLogin() {
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            clearMsgs();
+        }
+
+        function clearMsgs() {
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('regError').style.display = 'none';
+            document.getElementById('regSuccess').style.display = 'none';
+        }
+
+        async function apiPost(url, data) {
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            return res.json();
+        }
+
+        async function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            const errorEl = document.getElementById('loginError');
+
+            if (!username || !password) {
+                errorEl.textContent = '请输入用户名和密码';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const result = await apiPost(`${API_BASE}/common/auth/login`, { 用户名: username, 密码: password });
+                if (result.code === 200) {
+                    localStorage.setItem('token', result.data.访问令牌);
+                    localStorage.setItem('user', JSON.stringify({
+                        用户名: result.data.用户名,
+                        真实姓名: result.data.真实姓名 || result.data.用户名,
+                        角色: result.data.角色,
+                        用户ID: result.data.用户ID
+                    }));
+                    window.location.href = 'main.html';
+                } else {
+                    errorEl.textContent = result.msg || '登录失败';
+                    errorEl.style.display = 'block';
+                }
+            } catch (e) {
+                errorEl.textContent = '网络错误，请检查服务器是否启动';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        async function handleRegister() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+            const real_name = document.getElementById('regRealName').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const errorEl = document.getElementById('regError');
+            const successEl = document.getElementById('regSuccess');
+
+            if (!username || !password) {
+                errorEl.textContent = '请填写用户名和密码';
+                errorEl.style.display = 'block';
+                return;
+            }
+            if (password !== confirm) {
+                errorEl.textContent = '两次密码输入不一致';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const result = await apiPost(`${API_BASE}/common/auth/register`, {
+                    用户名: username, 密码: password, 真实姓名: real_name, 邮箱: email, 手机号: phone
+                });
+                if (result.code === 200) {
+                    successEl.textContent = '注册成功！请等待管理员分配角色后登录';
+                    successEl.style.display = 'block';
+                    errorEl.style.display = 'none';
+                    setTimeout(() => showLogin(), 2000);
+                } else {
+                    errorEl.textContent = result.msg || '注册失败';
+                    errorEl.style.display = 'block';
+                    successEl.style.display = 'none';
+                }
+            } catch (e) {
+                errorEl.textContent = '网络错误，请检查服务器是否启动';
+                errorEl.style.display = 'block';
+            }
+        }
+
+        // 回车登录
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                if (!document.getElementById('loginForm').classList.contains('hidden')) {
+                    handleLogin();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

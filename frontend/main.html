@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI-EAM 智能设备管理系统</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Microsoft YaHei','PingFang SC',sans-serif}
+body{background:#f0f2f5;overflow:hidden}
+.login-container{display:flex;height:100vh;align-items:center;justify-content:center;background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460)}
+.login-card{background:#fff;padding:40px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:400px;max-width:90vw}
+.login-card h2{text-align:center;margin-bottom:8px;color:#1a1a2e;font-size:24px}
+.login-card .sub{text-align:center;color:#999;margin-bottom:24px;font-size:13px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;margin-bottom:4px;color:#333;font-size:13px;font-weight:500}
+.form-group input,.form-group select{width:100%;padding:10px 12px;border:1px solid #d9d9d9;border-radius:8px;font-size:14px;transition:.2s}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.2)}
+.btn{width:100%;padding:10px;background:#1890ff;color:#fff;border:none;border-radius:8px;font-size:15px;cursor:pointer;transition:.2s}
+.btn.inline,.flex-row .btn,.card>.flex-row .btn,.card div[style*="flex"]>.btn{width:auto;min-width:96px;flex:0 0 auto}
+.btn.block{width:100%}
+.btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.btn:hover:not(:disabled){background:#096dd9}
+.btn.danger{background:#ff4d4f}
+.btn.danger:hover{background:#cf1322}
+.btn.success{background:#52c41a}
+.btn.success:hover{background:#389e0d}
+.btn.warning{background:#faad14;color:#333}
+.btn.warning:hover{background:#d48806;color:#fff}
+.btn.sm{padding:6px 12px;width:auto;font-size:13px}
+.link{text-align:center;margin-top:16px;font-size:13px;color:#666}
+.link a{color:#1890ff;cursor:pointer;text-decoration:none}
+.link a:hover{text-decoration:underline}
+.main-container{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:220px;background:#001529;color:#fff;overflow-y:auto;flex-shrink:0}
+.sidebar .logo{padding:20px 16px;font-size:18px;font-weight:700;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:8px}
+.sidebar .logo .badge{font-size:10px;background:#1890ff;padding:2px 6px;border-radius:4px;font-weight:400}
+.sidebar .user-info{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,.1);font-size:13px;display:flex;align-items:center;gap:8px}
+.sidebar .user-info .role-tag{font-size:11px;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.15)}
+.sidebar .user-info .logout-btn{margin-left:auto;font-size:12px;cursor:pointer;opacity:.6;padding:2px 8px;border-radius:4px}
+.sidebar .user-info .logout-btn:hover{opacity:1;background:rgba(255,255,255,.1)}
+.nav-group{padding:8px 0}
+.nav-group-title{font-size:11px;color:rgba(255,255,255,.45);padding:8px 16px 4px;text-transform:uppercase;letter-spacing:1px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:10px 16px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.65);transition:.15s;border-left:3px solid transparent}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,.08)}
+.nav-item.active{color:#fff;background:rgba(24,144,255,.15);border-left-color:#1890ff}
+.nav-item .nav-icon{font-size:16px;width:20px;text-align:center}
+.content{flex:1;overflow-y:auto;padding:24px;background:#f0f2f5;scroll-behavior:smooth}
+.content h2{margin-bottom:4px;font-size:20px;color:#1a1a2e}
+.content .desc{color:#888;font-size:13px;margin-bottom:20px}
+.page-header{margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #e8e8e8}
+.info-banner{padding:8px 12px;background:#e6f7ff;border:1px solid #91d5ff;border-radius:8px;font-size:13px;margin-bottom:12px;display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.info-banner.warn{background:#fffbe6;border-color:#ffe58f}
+.steps-hint{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.step-tag{padding:4px 12px;background:#f5f5f5;border-radius:16px;font-size:12px;color:#666}
+.step-tag.active{background:#e6f7ff;color:#1890ff;font-weight:600}
+.toast-wrap{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:360px}
+.toast{padding:12px 16px;border-radius:8px;font-size:13px;box-shadow:0 4px 12px rgba(0,0,0,.15);animation:toastIn .25s ease}
+.toast.info{background:#e6f7ff;border:1px solid #91d5ff;color:#0050b3}
+.toast.success{background:#f6ffed;border:1px solid #b7eb8f;color:#389e0d}
+.toast.error{background:#fff2f0;border:1px solid #ffccc7;color:#cf1322}
+.toast.warn{background:#fffbe6;border:1px solid #ffe58f;color:#d48806}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading{display:flex;align-items:center;justify-content:center;gap:8px;padding:24px;color:#1890ff;font-size:14px}
+.loading::before{content:'';width:18px;height:18px;border:2px solid #91d5ff;border-top-color:#1890ff;border-radius:50%;animation:spin .7s linear infinite}
+.form-error{color:#ff4d4f;font-size:13px;margin-top:8px;display:none}
+.sidebar-toggle{display:none;position:fixed;top:12px;left:12px;z-index:100;width:40px;height:40px;border:none;border-radius:8px;background:#001529;color:#fff;font-size:20px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.sidebar-mask{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:98}
+@media(max-width:768px){
+  .sidebar-toggle{display:block}
+  .main-container{flex-direction:column}
+  .sidebar{position:fixed;left:0;top:0;height:100vh;width:260px;z-index:99;transform:translateX(-100%);transition:transform .25s}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-mask.show{display:block}
+  .content{padding:16px;padding-top:56px}
+  .row>*{min-width:100%}
+  .toast-wrap{left:16px;right:16px;max-width:none}
+}
+.card{background:#fff;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.card-title{font-size:15px;font-weight:600;margin-bottom:12px;color:#333}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row>*{flex:1;min-width:200px}
+textarea{width:100%;padding:10px 12px;border:1px solid #d9d9d9;border-radius:8px;font-size:14px;resize:vertical;min-height:80px;transition:.2s}
+textarea:focus{outline:none;border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.2)}
+.result-box{background:#f6f8fa;border:1px solid #e8e8e8;border-radius:8px;padding:16px;margin-top:12px;max-height:500px;overflow:auto;font-size:13px;white-space:pre-wrap;word-break:break-all}
+.result-box table{width:100%;border-collapse:collapse;font-size:13px}
+.result-box table th,.result-box table td{padding:8px 10px;border:1px solid #e8e8e8;text-align:left}
+.result-box table th{background:#fafafa;font-weight:600}
+.result-box table tr:nth-child(even){background:#fafafa}
+.table-wrapper{overflow-x:auto}
+table.data-table{width:100%;border-collapse:collapse;font-size:13px;margin-top:8px}
+table.data-table th,table.data-table td{padding:10px 12px;border:1px solid #e8e8e8;text-align:left}
+table.data-table th{background:#fafafa;font-weight:600;white-space:nowrap}
+table.data-table tr:hover{background:#f0f7ff}
+table.data-table tr:nth-child(even){background:#fafafa}
+.status-badge{display:inline-block;padding:2px 10px;border-radius:10px;font-size:12px}
+.status-badge.green{background:#f6ffed;color:#52c41a;border:1px solid #b7eb8f}
+.status-badge.blue{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff}
+.status-badge.orange{background:#fff7e6;color:#fa8c16;border:1px solid #ffd591}
+.status-badge.red{background:#fff2f0;color:#ff4d4f;border:1px solid #ffccc7}
+.file-upload-zone{border:2px dashed #d9d9d9;border-radius:8px;padding:32px;text-align:center;cursor:pointer;transition:.2s;background:#fafafa;margin-bottom:12px}
+.file-upload-zone:hover{border-color:#1890ff;background:#f0f7ff}
+.file-upload-zone.dragover{border-color:#1890ff;background:#e6f7ff}
+.file-upload-zone .icon{font-size:36px;color:#999}
+.file-upload-zone .text{color:#666;margin-top:8px;font-size:14px}
+.file-upload-zone .hint{color:#999;font-size:12px;margin-top:4px}
+.file-info{display:flex;align-items:center;gap:8px;padding:8px 12px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;margin-bottom:12px;font-size:13px}
+.pcf-file-item{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 12px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;margin-bottom:6px;font-size:13px}
+.pcf-file-item.uploaded{background:#e6f7ff;border-color:#91d5ff}
+.pcf-file-item .name{flex:1;word-break:break-all}
+.pcf-file-item .meta{color:#999;font-size:12px;white-space:nowrap}
+.pcf-file-item .remove{color:#ff4d4f;cursor:pointer;font-size:18px;line-height:1;padding:0 6px;border:none;background:none;flex-shrink:0}
+.pcf-file-item .remove:hover{color:#cf1322}
+.pcf-file-empty{text-align:center;padding:16px;color:#999;font-size:13px;background:#fafafa;border:1px dashed #d9d9d9;border-radius:8px}
+.checkbox-label{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;padding:4px 0}
+.checkbox-label input[type=checkbox]{width:16px;height:16px;cursor:pointer}
+.engineer-card{border:1px solid #e8e8e8;border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer;transition:.2s;display:flex;justify-content:space-between;align-items:center}
+.engineer-card:hover{border-color:#1890ff;background:#f0f7ff}
+.engineer-card.selected{border-color:#1890ff;background:#e6f7ff;box-shadow:0 0 0 2px rgba(24,144,255,.2)}
+.empty-state{text-align:center;padding:32px;color:#999;font-size:14px}
+.flex-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.text-result{background:#fff;padding:16px;border-radius:8px;line-height:1.8;font-size:14px;color:#333;white-space:pre-wrap}
+.text-result h4{color:#1890ff;margin-top:12px;margin-bottom:6px}
+.tab-bar{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid #e8e8e8}
+.tab-item{padding:8px 20px;cursor:pointer;font-size:13px;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s}
+.tab-item:hover{color:#1890ff}
+.tab-item.active{color:#1890ff;border-bottom-color:#1890ff;font-weight:600}
+.tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;margin:2px}
+.tag.blue{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff}
+.tag.green{background:#f6ffed;color:#52c41a;border:1px solid #b7ebf8}
+.tag.orange{background:#fff7e6;color:#fa8c16;border:1px solid #ffd591}
+.tag.purple{background:#f9f0ff;color:#722ed1;border:1px solid #d3adf7}
+</style>
+</head>
+<body>
+<div id="app"><div class="loading" style="padding-top:40vh">加载中...</div></div>
+<script>
+// ========== 工具函数 ==========
+const API_BASE = window.location.origin.startsWith('http') ? window.location.origin : 'http://127.0.0.1:8000';
+function getToken(){return localStorage.getItem('token')||''}
+function getUser(){try{return JSON.parse(localStorage.getItem('user')||'{}')}catch{return{}}}
+function saveUser(u){localStorage.setItem('user',JSON.stringify(u))}
+
+function escapeHtml(s){
+  if(s==null)return'';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function showToast(msg,type){
+  type=type||'info';
+  let wrap=document.getElementById('toastWrap');
+  if(!wrap){wrap=document.createElement('div');wrap.id='toastWrap';wrap.className='toast-wrap';document.body.appendChild(wrap)}
+  const el=document.createElement('div');
+  el.className='toast '+type;
+  el.textContent=msg;
+  wrap.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300)},3200);
+}
+function syncPartName(from,to){
+  const a=document.getElementById(from),b=document.getElementById(to);
+  if(a&&b&&a.value!==b.value)b.value=a.value;
+}
+window.toggleSidebar=function(open){
+  const sb=document.querySelector('.sidebar');
+  const mask=document.getElementById('sidebarMask');
+  if(!sb)return;
+  const on=open==null?!sb.classList.contains('open'):open;
+  sb.classList.toggle('open',on);
+  if(mask)mask.classList.toggle('show',on);
+};
+
+async function apiGet(url){
+  const res=await fetch(API_BASE+url,{headers:{'Authorization':'Bearer '+getToken()}});
+  return res.json();
+}
+async function apiPost(url,data,isFormData=false){
+  const h={'Authorization':'Bearer '+getToken()};
+  if(!isFormData)h['Content-Type']='application/json';
+  const res=await fetch(API_BASE+url,{method:'POST',headers:h,body:isFormData?data:JSON.stringify(data)});
+  return res.json();
+}
+async function uploadFile(url,formData){
+  const res=await fetch(API_BASE+url,{method:'POST',headers:{'Authorization':'Bearer '+getToken()},body:formData});
+  return res.json();
+}
+function showResult(container,data,asText=false){
+  if(!container)return;
+  if(asText&&typeof data==='string'){container.innerHTML='<div class="text-result">'+data.replace(/\n/g,'<br>')+'</div>';return}
+  if(asText&&data&&data.content){container.innerHTML='<div class="text-result">'+data.content.replace(/\n/g,'<br>')+'</div>';return}
+  try{
+    const json=typeof data==='string'?JSON.parse(data):data;
+    if(asText&&typeof json==='object'&&json!==null){
+      const txt=json.reasoning||json.analysis||json.summary||json.content||json.result||json.recommendation||JSON.stringify(json,null,2);
+      container.innerHTML='<div class="text-result">'+txt.replace(/\n/g,'<br>')+'</div>';return;
+    }
+    container.innerHTML='<pre style="font-size:13px;margin:0">'+JSON.stringify(json,null,2)+'</pre>';
+  }catch{container.innerHTML='<div style="font-size:13px">'+(data||'')+'</div>'}
+}
+function showTable(container,arr,columns){
+  if(!arr||!arr.length){container.innerHTML='<div class="empty-state">暂无数据</div>';return}
+  let html='<div class="table-wrapper"><table class="data-table"><thead><tr>';
+  columns.forEach(c=>{html+='<th>'+(c.label||c)+'</th>'});
+  html+='</tr></thead><tbody>';
+  arr.forEach(row=>{
+    html+='<tr>';
+    columns.forEach(c=>{
+      const key=c.key||c;let val=row[key];
+      if(c.render)val=c.render(val,row);
+      else if(val===null||val===undefined)val='-';
+      html+='<td>'+escapeHtml(val)+'</td>';
+    });
+    html+='</tr>';
+  });
+  html+='</tbody></table></div>';
+  container.innerHTML=html;
+}
+function renderQuotationResult(container,data,autoAccum){
+  if(!data||!data.length){container.innerHTML='<div class="empty-state">无数据</div>';return}
+  const qItems=f=>f.报价明细||f.items||[];
+  const qName=f=>f.文件名||f.filename||'-';
+  let allItems=[];
+  data.forEach(f=>{
+    const items=qItems(f);
+    if(items.length){
+      items.forEach(item=>{
+        allItems.push({...item, _source:qName(f)});
+      });
+    }
+  });
+  if(autoAccum && allItems.length){
+    const existingSources=new Set(window.__quotationItems.map(i=>i._source));
+    allItems.forEach(item=>{
+      if(!existingSources.has(item._source)){
+        window.__quotationItems.push(item);
+        existingSources.add(item._source);
+      }
+    });
+    if(window.updateAccumDisplay)window.updateAccumDisplay();
+  }
+  let html='';
+  const successCount=data.filter(f=>qItems(f).length).length;
+  const totalItems=allItems.length;
+  const failCount=data.length-successCount;
+  html+=`<div style="margin-bottom:12px;font-size:13px;color:#666">
+    ${successCount}个文件识别成功，共提取 ${totalItems} 条报价`+(failCount?`, ${failCount}个文件解析失败`:'')+`</div>`;
+  if(totalItems){
+    html+='<div class="table-wrapper"><table class="data-table"><thead><tr>';
+    if(data.length>1)html+='<th>来源文件</th>';
+    html+=`<th>备件名称</th><th>规格型号</th><th>单价</th><th>数量</th><th>总价</th><th>币种</th><th>交期(天)</th><th>付款条件</th><th>有效期</th><th>含税</th></tr></thead><tbody>`;
+    allItems.forEach(item=>{
+      const g=(k,alt)=>item[k]??item[alt]??'-';
+      html+='<tr>';
+      if(data.length>1)html+=`<td style="max-width:150px;word-break:break-all">${item._source}</td>`;
+      html+=`<td>${g('备件名称','spare_part_name')}</td>`;
+      html+=`<td>${g('规格型号','specification')}</td>`;
+      html+=`<td>${g('单价','unit_price')}</td>`;
+      html+=`<td>${g('数量','quantity')}</td>`;
+      html+=`<td>${g('总价','total_price')}</td>`;
+      html+=`<td>${g('币种','currency')}</td>`;
+      html+=`<td>${g('交期天数','delivery_days')}</td>`;
+      html+=`<td>${g('付款条件','payment_terms')}</td>`;
+      html+=`<td>${g('有效期','valid_until')}</td>`;
+      html+=`<td>${item['含税']??(item.tax_included!=null?(item.tax_included?'是':'否'):'-')}</td>`;
+      html+='</tr>';
+    });
+    html+='</tbody></table></div>';
+    html+=`<div style="margin-top:8px;font-size:13px;color:#666">识别完成后可点击「比价分析」查看结果</div>`;
+  }
+  data.filter(f=>!qItems(f).length).forEach(f=>{
+    const raw=f.原始文本||f.raw_text;
+    html+=`<div style="margin-top:8px;padding:8px 12px;background:#fff2f0;border:1px solid #ffccc7;border-radius:6px;font-size:13px">
+      <span style="color:#ff4d4f">⚠️ ${qName(f)}</span>：${f.备注||f.note||'解析失败'}
+      ${raw?`<details style="margin-top:4px"><summary style="cursor:pointer;color:#1890ff;font-size:12px">查看原始识别文本</summary><pre style="font-size:12px;margin:4px 0;white-space:pre-wrap;background:#fff;padding:8px;border-radius:4px">${raw}</pre></details>`:''}
+    </div>`;
+  });
+  container.innerHTML=html;
+}
+function normalizeQuoteItem(item,part){
+  const g=(cn,en,f)=>item[cn]??item[en]??f;
+  const tax=item['含税']!=null?(item['含税']==='是'):item.tax_included;
+  return {
+    供应商: g('供应商','supplier','未知供应商'),
+    备件名称: g('备件名称','spare_part_name',part||''),
+    规格型号: g('规格型号','specification',''),
+    单价: g('单价','unit_price',null),
+    数量: g('数量','quantity',null),
+    总价: g('总价','total_price',null),
+    币种: g('币种','currency','CNY'),
+    交期天数: g('交期天数','delivery_days',null),
+    付款条件: g('付款条件','payment_terms',''),
+    有效期: g('有效期','valid_until',''),
+    含税: tax===true?'是':tax===false?'否':tax
+  };
+}
+function renderCompareResult(container,resp){
+  if(!container)return;
+  if(resp.code!==200){showResult(container,resp);return}
+  const d=resp.data||{};
+  let html='';
+  if(d.推荐理由||d.reason){
+    html+=`<div class="card"><div class="card-title">分析结论</div>
+      <p><strong>备件名称：</strong>${d.备件名称||'-'}</p>
+      <p><strong>推荐供应商ID：</strong>${d.推荐供应商ID??d.recommended_supplier_id??'-'}</p>
+      <p><strong>推荐理由：</strong>${d.推荐理由||d.reason||'-'}</p></div>`;
+  }
+  const table=d.汇总表||d.summary_table||[];
+  if(table.length){
+    html+='<div class="card"><div class="card-title">供应商比价汇总</div><div class="table-wrapper"><table class="data-table"><thead><tr>';
+    html+='<th>供应商ID</th><th>供应商名称</th><th>单价</th><th>交期(天)</th><th>付款条件</th><th>综合得分</th></tr></thead><tbody>';
+    table.forEach(row=>{
+      html+=`<tr>
+        <td>${row.供应商ID??row.supplier_id??'-'}</td>
+        <td>${row.供应商名称??row.supplier_name??'-'}</td>
+        <td>${row.单价??row.unit_price??'-'}</td>
+        <td>${row.交期天数??row.delivery_days??'-'}</td>
+        <td>${row.付款条件??row.payment_terms??'-'}</td>
+        <td>${row.综合得分??row.total_score??'-'}</td>
+      </tr>`;
+    });
+    html+='</tbody></table></div></div>';
+  }
+  const tips=d.谈判建议||d.negotiation_suggestions||[];
+  if(tips.length){
+    html+='<div class="card"><div class="card-title">谈判建议</div><ul style="margin:0;padding-left:20px">';
+    tips.forEach(t=>{html+=`<li style="margin-bottom:4px">${t}</li>`});
+    html+='</ul></div>';
+  }
+  if(!html)html='<div class="empty-state">无比价结果</div>';
+  container.innerHTML=html;
+}
+
+// ========== 角色配置 ==========
+const ROLE_CONFIG = {
+  admin: {label:'管理员',color:'#e74c3c',pages:[
+    {group:'系统管理',icon:'⚙️',items:[{id:'用户管理',name:'用户角色权限',icon:'👥'}]},
+    {group:'数据与决策',icon:'📊',items:[{id:'数据看板',name:'数据看板',icon:'📊'},{id:'数据洞察',name:'数据洞察',icon:'🔍'},{id:'LCC分析',name:'LCC分析',icon:'💰'},{id:'审批决策辅助',name:'审批决策',icon:'✅'}]},
+    {group:'故障诊断',icon:'🔧',items:[{id:'AI故障诊断',name:'AI故障诊断',icon:'🔧'},{id:'知识库搜索',name:'知识库搜索',icon:'📚'},{id:'故障案例',name:'故障案例',icon:'📋'}]},
+    {group:'维修作业',icon:'🛠️',items:[{id:'上传维修手册',name:'上传维修手册',icon:'📖'},{id:'维修作业录入',name:'维修作业录入',icon:'🔧'}]},
+    {group:'技能与监控',icon:'📡',items:[{id:'技能考核',name:'技能考核',icon:'📝'},{id:'IoT分析',name:'IoT分析',icon:'📡'}]},
+    {group:'备件管理',icon:'📦',items:[{id:'BOM检查',name:'BOM检查',icon:'📋'},{id:'申购分析',name:'申购分析',icon:'📦'},{id:'调拨评估',name:'调拨评估',icon:'🔄'}]},
+    {group:'人员调度',icon:'🚀',items:[{id:'调派管理',name:'工程师调派',icon:'🚀'}]},
+    {group:'采购管理',icon:'💰',items:[{id:'比价分析',name:'比价分析',icon:'📊'},{id:'合同审查',name:'合同审查',icon:'📄'},{id:'合同查询',name:'合同查询',icon:'🔍'}]},
+    {group:'供应商管理',icon:'🏢',items:[{id:'供应商风险评估',name:'风险评估',icon:'⚠️'},{id:'供应商推荐',name:'供应商推荐',icon:'🎯'},{id:'价格趋势',name:'价格趋势',icon:'📈'}]},
+    {group:'文件',icon:'📁',items:[{id:'文件上传',name:'文件上传',icon:'📁'}]}
+  ]},
+  engineer: {label:'工程师',color:'#3498db',pages:[
+    {group:'故障诊断',icon:'🔧',items:[{id:'AI故障诊断',name:'AI故障诊断',icon:'🔧'},{id:'知识库搜索',name:'知识库搜索',icon:'📚'},{id:'故障案例',name:'故障案例',icon:'📋'}]},
+    {group:'维修作业',icon:'🛠️',items:[{id:'上传维修手册',name:'上传维修手册',icon:'📖'},{id:'维修作业录入',name:'维修作业录入',icon:'🔧'}]},
+    {group:'技能与监控',icon:'📡',items:[{id:'技能考核',name:'技能考核',icon:'📝'},{id:'IoT分析',name:'IoT分析',icon:'📡'}]},
+    {group:'文件',icon:'📁',items:[{id:'文件上传',name:'文件上传',icon:'📁'}]}
+  ]},
+  supervisor: {label:'主管',color:'#2ecc71',pages:[
+    {group:'备件管理',icon:'📦',items:[{id:'BOM检查',name:'BOM检查',icon:'📋'},{id:'申购分析',name:'申购分析',icon:'📦'},{id:'调拨评估',name:'调拨评估',icon:'🔄'}]},
+    {group:'人员调度',icon:'🚀',items:[{id:'调派管理',name:'工程师调派',icon:'🚀'}]},
+    {group:'文件',icon:'📁',items:[{id:'文件上传',name:'文件上传',icon:'📁'}]}
+  ]},
+  purchaser: {label:'采购员',color:'#f39c12',pages:[
+    {group:'采购管理',icon:'💰',items:[{id:'比价分析',name:'比价分析',icon:'📊'},{id:'合同审查',name:'合同审查',icon:'📄'},{id:'合同查询',name:'合同查询',icon:'🔍'}]},
+    {group:'供应商管理',icon:'🏢',items:[{id:'供应商风险评估',name:'风险评估',icon:'⚠️'},{id:'供应商推荐',name:'供应商推荐',icon:'🎯'},{id:'价格趋势',name:'价格趋势',icon:'📈'}]},
+    {group:'文件',icon:'📁',items:[{id:'文件上传',name:'文件上传',icon:'📁'}]}
+  ]},
+  leader: {label:'领导',color:'#9b59b6',pages:[
+    {group:'决策审批',icon:'✅',items:[{id:'审批决策辅助',name:'审批决策辅助',icon:'✅'}]},
+    {group:'数据洞察',icon:'📊',items:[{id:'数据看板',name:'数据看板',icon:'📊'},{id:'数据洞察',name:'数据洞察',icon:'🔍'},{id:'LCC分析',name:'LCC分析',icon:'💰'}]},
+    {group:'文件',icon:'📁',items:[{id:'文件上传',name:'文件上传',icon:'📁'}]}
+  ]},
+  guest: {label:'访客',color:'#95a5a6',pages:[
+    {group:'通用',icon:'🔍',items:[{id:'个人信息',name:'个人信息',icon:'👤'},{id:'文件上传',name:'文件上传',icon:'📁'}]}
+  ]}
+};
+
+// ========== 渲染文件上传（通用） ==========
+function renderFileUpload(container,endpoint,extraFields,options){
+  options=options||{};
+  const id='fu_'+Math.random().toString(36).substr(2,6);
+  const isMulti=!!options.multiple;
+  let extraHtml='';
+  if(extraFields)extraFields.forEach(f=>{
+    if(f.type==='checkbox')extraHtml+=`<label class="checkbox-label"><input type="checkbox" id="${id}_${f.key}" ${f.checked?'checked':''}> ${f.label}</label>`;
+    else extraHtml+=`<div class="form-group"><label>${f.label}</label><input type="${f.type||'text'}" id="${id}_${f.key}" placeholder="${f.placeholder||''}"></div>`;
+  });
+  container.innerHTML=`
+    <div class="card"><div class="card-title">${options.title||'上传文件'}</div>
+    <div class="file-upload-zone" id="${id}_zone"><div class="icon">📁</div><div class="text">点击选择文件或拖拽文件到此处</div><div class="hint">${options.acceptText||'支持所有常见文件格式'}${isMulti?'（可多选）':''}</div></div>
+    <input type="file" id="${id}_file" style="display:none" accept="${options.accept||'*'}" ${isMulti?'multiple':''}>
+    <div id="${id}_info" style="display:none" class="file-info">📎 <span id="${id}_name"></span></div>
+    ${extraHtml}
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <button class="btn" id="${id}_btn">上传</button>
+      <button class="btn danger" id="${id}_cancel_btn" style="display:none">取消上传</button>
+    </div>
+    <div id="${id}_result" class="result-box" style="display:none"></div></div>`;
+  const zone=document.getElementById(id+'_zone');
+  const fileInput=document.getElementById(id+'_file');
+  let abortController=null;
+  zone.onclick=()=>fileInput.click();
+  zone.ondragover=e=>{e.preventDefault();zone.classList.add('dragover')};
+  zone.ondragleave=()=>zone.classList.remove('dragover');
+  zone.ondrop=e=>{e.preventDefault();zone.classList.remove('dragover');if(e.dataTransfer.files.length)fileInput.files=e.dataTransfer.files;updateFileInfo()};
+  fileInput.onchange=updateFileInfo;
+  function updateFileInfo(){
+    const files=fileInput.files;
+    if(!files||!files.length){document.getElementById(id+'_info').style.display='none';return}
+    const names=[];
+    let totalSize=0;
+    let hasLarge=false;
+    for(let i=0;i<Math.min(files.length,5);i++){
+      names.push(files[i].name);
+      totalSize+=files[i].size;
+      if(files[i].size>2048*1024)hasLarge=true;
+    }
+    const label=files.length===1?names[0]+' ('+(files[0].size/1024).toFixed(1)+'KB)':files.length+'个文件 ('+(totalSize/1024/1024).toFixed(1)+'MB)';
+    const warning=hasLarge?' <span style="color:#e74c3c;font-size:11px">⚠️ 含大文件，上传可能较慢</span>':'';
+    document.getElementById(id+'_name').textContent=label+warning;
+    document.getElementById(id+'_info').style.display='flex';
+  }
+  document.getElementById(id+'_btn').onclick=async()=>{
+    const files=fileInput.files;
+    if(!files||!files.length){alert('请先选择文件');return}
+    const fd=new FormData();
+    for(let i=0;i<files.length;i++)fd.append('files',files[i]);
+    if(extraFields)extraFields.forEach(fld=>{
+      const el=document.getElementById(id+'_'+fld.key);
+      if(el)fd.append(fld.key,fld.type==='checkbox'?(el.checked?'true':'false'):el.value);
+    });
+    const btn=document.getElementById(id+'_btn');
+    const cancelBtn=document.getElementById(id+'_cancel_btn');
+    btn.disabled=true;btn.textContent='上传中 ('+files.length+'个文件)...';
+    cancelBtn.style.display='inline-block';
+    abortController=new AbortController();
+    try{
+      const res=await fetch(API_BASE+endpoint,{
+        method:'POST',
+        headers:{'Authorization':'Bearer '+getToken()},
+        body:fd,
+        signal:abortController.signal,
+      });
+      const json=await res.json();
+      const resultEl=document.getElementById(id+'_result');
+      resultEl.style.display='block';
+      if(options.onResult){
+        options.onResult(resultEl,json);
+      }else{
+        showResult(resultEl,json);
+      }
+    }catch(e){
+      if(e.name==='AbortError'){
+        const resultEl=document.getElementById(id+'_result');
+        resultEl.style.display='block';
+        resultEl.innerHTML='<div class="empty-state">已取消上传</div>';
+      }else{
+        alert('上传失败：'+e.message);
+      }
+    }
+    finally{
+      btn.disabled=false;btn.textContent='上传';
+      cancelBtn.style.display='none';
+      abortController=null;
+    }
+  };
+  document.getElementById(id+'_cancel_btn').onclick=()=>{
+    if(abortController){
+      abortController.abort();
+    }
+  };
+  return id;
+}
+
+// ========== 页面渲染函数 ==========
+// 首页
+function renderHome(container){
+  const u=getUser();
+  container.innerHTML=`
+    <h2>欢迎回来，${u.真实姓名||u.用户名}</h2>
+    <div class="desc">角色：${ROLE_CONFIG[u.角色]?.label||u.角色}</div>
+    <div class="row" style="margin-top:16px">
+      <div class="card"><div class="card-title">系统概览</div><p style="color:#666;font-size:13px">AI-EAM 智能设备全生命周期管理系统<br>基于AI驱动的设备资产管理与智能运维平台</p></div>
+      <div class="card"><div class="card-title">个人信息</div><table class="data-table"><tr><td>用户名</td><td>${u.用户名}</td></tr><tr><td>姓名</td><td>${u.真实姓名||'-'}</td></tr><tr><td>角色</td><td><span class="status-badge blue">${ROLE_CONFIG[u.角色]?.label||u.角色}</span></td></tr></table></div>
+    </div>`;
+}
+
+// 管理员：用户角色权限
+function renderAdminUsers(container){
+  container.innerHTML=`
+    <h2>用户角色权限管理</h2>
+    <div class="desc">查看所有用户，分配角色权限，查看各角色功能点</div>
+    <div class="card"><div class="card-title">用户列表</div><div id="userList"><div class="loading">加载中...</div></div></div>
+    <div class="card"><div class="card-title">角色功能权限一览</div><div id="rolePerms"><div class="loading">加载中...</div></div></div>`;
+  loadUsers();
+  loadRolePerms();
+}
+async function loadUsers(){
+  const el=document.getElementById('userList');if(!el)return;
+  const r=await apiGet('/api/v1/common/auth/users');
+  if(r.code!==200||!r.data){el.innerHTML='<div class="empty-state">加载失败</div>';return}
+  const roles=[{v:'admin',l:'管理员'},{v:'engineer',l:'工程师'},{v:'supervisor',l:'主管'},{v:'purchaser',l:'采购员'},{v:'leader',l:'领导'},{v:'guest',l:'访客'}];
+  let html='<div class="table-wrapper"><table class="data-table"><thead><tr><th>ID</th><th>用户名</th><th>姓名</th><th>邮箱</th><th>当前角色</th><th>操作</th></tr></thead><tbody>';
+  for(const u of r.data){
+    const opt=roles.map(rr=>`<option value="${rr.v}"${u.角色===rr.v?' selected':''}>${rr.l}</option>`).join('');
+    html+=`<tr><td>${escapeHtml(String(u.id))}</td><td>${escapeHtml(u.用户名||'')}</td><td>${escapeHtml(u.真实姓名||'-')}</td><td>${escapeHtml(u.邮箱||'-')}</td><td><span class="status-badge blue">${escapeHtml(roles.find(rr=>rr.v===u.角色)?.l||u.角色)}</span></td><td><select id="role_${u.id}" style="padding:4px 8px;border-radius:4px;font-size:12px">${opt}</select><button class="btn sm" style="margin-left:6px" onclick="changeRole(${u.id})">保存</button></td></tr>`;
+  }
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
+}
+function loadRolePerms(){
+  const el=document.getElementById('rolePerms');if(!el)return;
+  const allRoles={'admin':['用户管理','数据看板','数据洞察','LCC分析','审批决策辅助','AI故障诊断','知识库搜索','故障案例','上传维修手册','维修作业录入','技能考核','IoT分析','BOM检查','申购分析','调拨评估','调派管理','比价分析','合同审查','合同查询','供应商风险评估','供应商推荐','价格趋势','文件上传'],'engineer':['AI故障诊断','知识库搜索','故障案例','上传维修手册','维修作业录入','技能考核','IoT分析','文件上传'],'supervisor':['BOM检查','申购分析','调拨评估','调派管理','文件上传'],'purchaser':['比价分析','合同审查','合同查询','供应商风险评估','供应商推荐','价格趋势','文件上传'],'leader':['审批决策辅助','数据看板','数据洞察','LCC分析','文件上传'],'guest':['个人信息','文件上传']};
+  const rdata=[{k:'admin',l:'管理员',c:'#e74c3c'},{k:'engineer',l:'工程师',c:'#3498db'},{k:'supervisor',l:'主管',c:'#2ecc71'},{k:'purchaser',l:'采购员',c:'#f39c12'},{k:'leader',l:'领导',c:'#9b59b6'},{k:'guest',l:'访客',c:'#95a5a6'}];
+  let html='';
+  for(const r of rdata){
+    const funcs=allRoles[r.k]||[];
+    html+=`<div style="margin-bottom:12px;padding:12px;border:1px solid #e8e8e8;border-radius:8px"><div style="font-weight:600;color:${r.c};margin-bottom:6px">${r.l}</div><div>${funcs.map(f=>'<span class="tag blue">'+f+'</span>').join('')}</div></div>`;
+  }
+  el.innerHTML=html;
+}
+window.changeRole=async function(userId){
+  const sel=document.getElementById('role_'+userId);
+  if(!sel)return;
+  const r=await apiPost('/api/v1/common/auth/assign-role',{用户ID:userId,角色:sel.value});
+  alert(r.code===200?'角色修改成功！':'修改失败：'+(r.msg||'未知错误'));
+};
+
+// 诊断
+window.doDiagnosis=async function(){
+  const desc=document.getElementById('diag_desc').value;
+  if(!desc){alert('请输入故障描述');return}
+  const el=document.getElementById('diag_result');
+  el.style.display='block';el.innerHTML='<div class="loading">AI诊断中...</div>';
+  const r=await apiPost('/api/v1/engineer/diagnosis/diagnose',{设备ID:document.getElementById('diag_equip').value,故障描述:desc});
+  showResult(el,r,true);
+};
+// 知识库搜索
+window.doKBSearch=async function(){
+  const q=document.getElementById('kb_query').value;
+  if(!q){alert('请输入搜索内容');return}
+  const el=document.getElementById('kb_result');
+  el.style.display='block';el.innerHTML='<div class="loading">搜索中...</div>';
+  const r=await apiPost('/api/v1/engineer/knowledge/search',{问题:q,返回条数:3});
+  if(r.code===200&&r.data){
+    showResult(el,r.data,true);
+    if(r.data.sources)el.innerHTML+='<div style="margin-top:8px;font-size:12px;color:#999">来源：'+r.data.sources.map(s=>s.source).join(', ')+'</div>';
+  }else showResult(el,r,true);
+};
+// 故障案例搜索
+window.doSearchCase=async function(){
+  const q=document.getElementById('case_query').value;
+  if(!q){alert('请输入搜索内容');return}
+  const el=document.getElementById('case_result');
+  el.style.display='block';el.innerHTML='<div class="loading">搜索中...</div>';
+  const r=await apiPost('/api/v1/engineer/knowledge/fault-cases/search',{问题:q,返回条数:5});
+  if(r.code===200&&r.data&&r.data.cases){
+    const cases=r.data.cases;
+    if(!cases.length){el.innerHTML='<div class="empty-state">未找到匹配案例</div>';return}
+    let html='<div style="font-weight:600;margin-bottom:8px">找到 '+cases.length+' 个匹配案例</div>';
+    cases.forEach((c,i)=>{
+      html+=`<div style="margin-bottom:12px;padding:12px;border:1px solid #e8e8e8;border-radius:8px"><div style="font-weight:600;margin-bottom:4px">#${i+1} ${c.fault_type||'未知类型'}</div><div style="font-size:13px;color:#666;margin-bottom:4px"><b>故障：</b>${c.content}</div><div style="font-size:13px;color:#52c41a"><b>方案：</b>${c.resolution||'无'}</div></div>`;
+    });
+    el.innerHTML=html;
+  }else showResult(el,r,true);
+};
+window.doAddCase=async function(){
+  const type=document.getElementById('case_type').value;
+  const desc=document.getElementById('case_desc').value;
+  const res=document.getElementById('case_resolution').value;
+  if(!desc||!res){alert('请填写故障描述和解决方案');return}
+  const el=document.getElementById('case_add_result');
+  el.style.display='block';el.innerHTML='<div class="loading">录入中...</div>';
+  const r=await apiPost('/api/v1/engineer/knowledge/ingest-case',{故障描述:desc,故障类型:type,解决方案:res});
+  showResult(el,r);
+};
+// 语音转文字
+// ========== 在线语音录制 ==========
+window.toggleVoiceRecord=async function(){
+  const btn=document.getElementById('voice_record_btn');
+  const status=document.getElementById('voice_status');
+  const timer=document.getElementById('voice_timer');
+  const resultBox=document.getElementById('voice_result');
+  if(window.mediaRecorder&&window.mediaRecorder.state==='recording'){
+    // 停止录音
+    window.mediaRecorder.stop();
+    window.mediaRecorder.stream.getTracks().forEach(t=>t.stop());
+    clearInterval(window.recordingTimer);
+    btn.textContent='🎤 开始录音';
+    btn.style.background='#1890ff';
+    status.textContent='语音处理中...';
+    timer.style.display='none';
+    return;
+  }
+  // 开始录音
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    alert('您的浏览器不支持麦克风录制，请使用文件上传方式');return;
+  }
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    window.audioChunks=[];
+    window.mediaRecorder=new MediaRecorder(stream,{mimeType:'audio/webm'});
+    window.mediaRecorder.ondataavailable=e=>{if(e.data.size>0)window.audioChunks.push(e.data);};
+    window.mediaRecorder.onstop=async()=>{
+      const blob=new Blob(window.audioChunks,{type:'audio/webm'});
+      const fd=new FormData();
+      fd.append('file',blob,'recording.webm');
+      resultBox.style.display='block';resultBox.innerHTML='<div class="loading">AI语音识别中...</div>';
+      try{
+        const r=await apiPost('/api/v1/engineer/work-order/speech-to-text',fd,true);
+        showResult(resultBox,r,true);
+        status.innerHTML='✅ 录制完成，识别结果如上';
+      }catch(e){
+        resultBox.innerHTML='<div class="empty-state">识别失败：'+e.message+'</div>';
+        status.textContent='识别失败，请重试';
+      }
+    };
+    window.mediaRecorder.start();
+    btn.textContent='⏹ 停止录音';
+    btn.style.background='#ff4d4f';
+    status.textContent='正在录音...点击停止按钮结束';
+    window.recordingSeconds=0;
+    timer.style.display='block';
+    timer.textContent='00:00';
+    window.recordingTimer=setInterval(()=>{
+      window.recordingSeconds++;
+      const m=String(Math.floor(window.recordingSeconds/60)).padStart(2,'0');
+      const s=String(window.recordingSeconds%60).padStart(2,'0');
+      timer.textContent=m+':'+s;
+    },1000);
+    resultBox.style.display='none';
+  }catch(e){
+    alert('无法访问麦克风：'+e.message+'，请使用文件上传方式');
+  }
+};
+
+window.doVoiceTrans=async function(){
+  const f=document.getElementById('voice_file').files[0];
+  if(!f){alert('请选择音频文件');return}
+  const fd=new FormData();fd.append('file',f);
+  const el=document.getElementById('voice_result');
+  el.style.display='block';el.innerHTML='<div class="loading">识别中...</div>';
+  const r=await apiPost('/api/v1/engineer/work-order/speech-to-text',fd,true);
+  showResult(el,r,true);
+};
+// 图片分析
+window.doImageAnalysis=async function(){
+  const f=document.getElementById('img_file').files[0];
+  if(!f){alert('请选择图片');return}
+  const fd=new FormData();fd.append('file',f);
+  const el=document.getElementById('img_result');
+  el.style.display='block';el.innerHTML='<div class="loading">AI分析中...</div>';
+  const r=await apiPost('/api/v1/engineer/work-order/analyze-image',fd,true);
+  showResult(el,r,true);
+};
+// 生成报告
+window.doGenReport=async function(){
+  const equip=document.getElementById('rpt_equip').value;
+  const voice=document.getElementById('rpt_voice').value||document.getElementById('rw_voice_text')?.value||'';
+  const img=document.getElementById('rpt_image').value||document.getElementById('rw_image_text')?.value||'';
+  const el=document.getElementById('rpt_result')||document.getElementById('rw_report_result');
+  if(!el){alert('找不到结果显示区域');return}
+  el.style.display='block';el.innerHTML='<div class="loading">AI生成中...</div>';
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const r=await apiPost('/api/v1/engineer/work-order/generate-report',{设备ID:equip,语音文本:voice,图片分析:img});
+  if(r.code===200)showResult(el,r.data,true);
+  else showResult(el,r,true);
+};
+
+// ========== 维修作业录入（合并页面） ==========
+window.renderRepairWork=function(container){
+  container.innerHTML=`
+    <h2>维修作业录入</h2>
+    <div class="desc">一站式完成语音识别、图片分析、报告生成及知识库录入</div>
+    <div class="tab-bar">
+      <div class="tab-item active" data-tab="rw_voice" onclick="switchRWTab('rw_voice')">🎤 语音识别</div>
+      <div class="tab-item" data-tab="rw_image" onclick="switchRWTab('rw_image')">📸 图片分析</div>
+      <div class="tab-item" data-tab="rw_report" onclick="switchRWTab('rw_report')">📝 生成报告</div>
+      <div class="tab-item" data-tab="rw_store" onclick="switchRWTab('rw_store')">💾 录入知识库</div>
+    </div>
+    <!-- 语音识别 -->
+    <div id="rw_voice">
+      <div class="card">
+        <div class="card-title">在线语音录制</div>
+        <div style="text-align:center;padding:12px">
+          <div id="rw_voice_status" style="font-size:13px;color:#666;margin-bottom:8px">点击开始按钮，对着麦克风说话</div>
+          <button class="btn" id="rw_voice_btn" onclick="toggleRWRecord()" style="width:180px;height:44px;font-size:15px;border-radius:22px">🎤 开始录音</button>
+          <div id="rw_voice_timer" style="font-size:12px;color:#999;margin-top:6px;display:none">00:00</div>
+        </div>
+        <div class="card-title" style="margin-top:8px">或上传音频文件</div>
+        <div class="file-upload-zone" id="rw_v_zone" onclick="document.getElementById('rw_v_file').click()"><div class="icon">🎵</div><div class="text">点击选择音频文件</div><div class="hint">支持MP3/WAV/M4A</div></div>
+        <input type="file" id="rw_v_file" style="display:none" accept="audio/*" onchange="document.getElementById('rw_v_name').textContent=this.files[0]?.name;document.getElementById('rw_v_info').style.display=this.files[0]?'flex':'none'">
+        <div id="rw_v_info" style="display:none" class="file-info">🎵 <span id="rw_v_name"></span></div>
+        <button class="btn" onclick="doRWVoiceTrans()">开始识别</button>
+        <div id="rw_voice_result" class="result-box" style="display:none"></div>
+      </div>
+    </div>
+    <!-- 图片分析 -->
+    <div id="rw_image" style="display:none">
+      <div class="card">
+        <div class="file-upload-zone" id="rw_i_zone" onclick="document.getElementById('rw_i_file').click()"><div class="icon">📸</div><div class="text">点击选择故障图片</div><div class="hint">支持JPG/PNG</div></div>
+        <input type="file" id="rw_i_file" style="display:none" accept="image/*" onchange="document.getElementById('rw_i_name').textContent=this.files[0]?.name;document.getElementById('rw_i_info').style.display=this.files[0]?'flex':'none'">
+        <div id="rw_i_info" style="display:none" class="file-info">🖼️ <span id="rw_i_name"></span></div>
+        <button class="btn" onclick="doRWImageAnalysis()">分析</button>
+        <div id="rw_image_result" class="result-box" style="display:none"></div>
+      </div>
+    </div>
+    <!-- 生成报告 -->
+    <div id="rw_report" style="display:none">
+      <div class="card">
+        <div class="form-group"><label>设备ID</label><input id="rw_equip" placeholder="EQ-001" value="${document.getElementById('rw_equip')?.value||''}"></div>
+        <div class="form-group"><label>语音识别文本</label><textarea id="rw_voice_text" placeholder="先到「语音识别」选项卡转写，结果自动填入"></textarea></div>
+        <div class="form-group"><label>图片分析结果</label><textarea id="rw_image_text" placeholder="先到「图片分析」选项卡分析，结果自动填入"></textarea></div>
+        <button class="btn" onclick="doGenReport()">生成报告</button>
+        <div id="rw_report_result" class="result-box" style="display:none"></div>
+      </div>
+    </div>
+    <!-- 录入知识库 -->
+    <div id="rw_store" style="display:none">
+      <div class="card">
+        <div class="card-title">录入维修数据到知识库</div>
+        <div class="form-group"><label>设备ID</label><input id="rw_store_equip" placeholder="EQ-001"></div>
+        <div class="form-group"><label>故障描述</label><textarea id="rw_store_desc" style="min-height:80px" placeholder="描述故障现象..."></textarea></div>
+        <div class="form-group"><label>维修方案</label><textarea id="rw_store_solution" style="min-height:80px" placeholder="维修处理方案..."></textarea></div>
+        <div class="form-group"><label>附件</label><div class="file-upload-zone" id="rw_s_zone" onclick="document.getElementById('rw_s_file').click()"><div class="icon">📎</div><div class="text">选择附件（可选）</div><div class="hint">支持图片/PDF/Word</div></div>
+        <input type="file" id="rw_s_file" style="display:none" accept=".pdf,.doc,.docx,.jpg,.png"></div>
+        <div id="rw_s_info" style="display:none" class="file-info">📎 <span id="rw_s_name"></span></div>
+        <button class="btn success" onclick="doRWStore()">录入知识库</button>
+        <div id="rw_store_result" class="result-box" style="display:none"></div>
+      </div>
+    </div>`;
+
+  // Setup voice recording globals
+  window.rwMediaRecorder=null;
+  window.rwAudioChunks=[];
+  window.rwTimer=null;
+  window.rwSeconds=0;
+
+  // Setup drag/drop for voice zone
+  const vz=document.getElementById('rw_v_zone');
+  const vf=document.getElementById('rw_v_file');
+  if(vz){
+    vz.onclick=()=>vf.click();
+    vz.ondragover=e=>{e.preventDefault();vz.classList.add('dragover')};
+    vz.ondragleave=()=>vz.classList.remove('dragover');
+    vz.ondrop=e=>{e.preventDefault();vz.classList.remove('dragover');if(e.dataTransfer.files.length)vf.files=e.dataTransfer.files;document.getElementById('rw_v_name').textContent=vf.files[0]?.name;document.getElementById('rw_v_info').style.display=vf.files[0]?'flex':'none'};
+  }
+  // Setup drag/drop for image zone
+  const iz=document.getElementById('rw_i_zone');
+  const inf=document.getElementById('rw_i_file');
+  if(iz){
+    iz.onclick=()=>inf.click();
+    iz.ondragover=e=>{e.preventDefault();iz.classList.add('dragover')};
+    iz.ondragleave=()=>iz.classList.remove('dragover');
+    iz.ondrop=e=>{e.preventDefault();iz.classList.remove('dragover');if(e.dataTransfer.files.length)inf.files=e.dataTransfer.files;document.getElementById('rw_i_name').textContent=inf.files[0]?.name;document.getElementById('rw_i_info').style.display=inf.files[0]?'flex':'none'};
+  }
+};
+
+window.switchRWTab=function(tab){
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  ['rw_voice','rw_image','rw_report','rw_store'].forEach(id=>{
+    document.getElementById(id).style.display=(id===tab)?'block':'none';
+  });
+};
+
+window.toggleRWRecord=async function(){
+  const btn=document.getElementById('rw_voice_btn');
+  const status=document.getElementById('rw_voice_status');
+  const timer=document.getElementById('rw_voice_timer');
+  const resultBox=document.getElementById('rw_voice_result');
+  if(window.rwMediaRecorder&&window.rwMediaRecorder.state==='recording'){
+    window.rwMediaRecorder.stop();
+    window.rwMediaRecorder.stream.getTracks().forEach(t=>t.stop());
+    clearInterval(window.rwTimer);
+    btn.textContent='🎤 开始录音';
+    status.textContent='语音处理中...';
+    timer.style.display='none';
+    return;
+  }
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){alert('浏览器不支持麦克风');return}
+  try{
+    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    window.rwAudioChunks=[];
+    window.rwMediaRecorder=new MediaRecorder(stream,{mimeType:'audio/webm'});
+    window.rwMediaRecorder.ondataavailable=e=>{if(e.data.size>0)window.rwAudioChunks.push(e.data)};
+    window.rwMediaRecorder.onstop=async()=>{
+      const blob=new Blob(window.rwAudioChunks,{type:'audio/webm'});
+      const fd=new FormData();fd.append('file',blob,'recording.webm');
+      resultBox.style.display='block';resultBox.innerHTML='<div class="loading">AI语音识别中...</div>';
+      try{const r=await apiPost('/api/v1/engineer/work-order/speech-to-text',fd,true);if(r.code===200&&r.data){const t=r.data.文本||r.data.text||'';resultBox.innerHTML='<div class="text-result">'+t+'</div>';document.getElementById('rw_voice_text').value=t;}else showResult(resultBox,r,true)}catch(e){resultBox.innerHTML='<div class="empty-state">识别失败：'+e.message+'</div>'}
+    };
+    window.rwMediaRecorder.start();
+    btn.textContent='⏹ 停止录音';
+    status.textContent='录音中...';
+    window.rwSeconds=0;timer.style.display='block';timer.textContent='00:00';
+    window.rwTimer=setInterval(()=>{window.rwSeconds++;const m=String(Math.floor(window.rwSeconds/60)).padStart(2,'0');const s=String(window.rwSeconds%60).padStart(2,'0');timer.textContent=m+':'+s},1000);
+  }catch(e){alert('无法访问麦克风');}
+};
+
+window.doRWVoiceTrans=async function(){
+  const f=document.getElementById('rw_v_file').files[0];
+  if(!f){alert('请选择音频文件');return}
+  const fd=new FormData();fd.append('file',f);
+  const el=document.getElementById('rw_voice_result');
+  el.style.display='block';el.innerHTML='<div class="loading">识别中...</div>';
+  const r=await apiPost('/api/v1/engineer/work-order/speech-to-text',fd,true);
+  if(r.code===200&&r.data){const t=r.data.文本||r.data.text||'';el.innerHTML='<div class="text-result">'+t+'</div>';document.getElementById('rw_voice_text').value=t;}
+  else showResult(el,r,true);
+};
+
+window.doRWImageAnalysis=async function(){
+  const f=document.getElementById('rw_i_file').files[0];
+  if(!f){alert('请选择图片');return}
+  const fd=new FormData();fd.append('file',f);
+  const el=document.getElementById('rw_image_result');
+  el.style.display='block';el.innerHTML='<div class="loading">AI分析中...</div>';
+  const r=await apiPost('/api/v1/engineer/work-order/analyze-image',fd,true);
+  if(r.code===200&&r.data){
+    const txt=typeof r.data==='string'?r.data:(r.data.analysis||r.data.description||r.data.result||JSON.stringify(r.data));
+    el.innerHTML='<div class="text-result">'+txt+'</div>';
+    document.getElementById('rw_image_text').value=txt;
+  } else showResult(el,r,true);
+};
+
+window.doRWStore=async function(){
+  const equip=document.getElementById('rw_store_equip').value;
+  const desc=document.getElementById('rw_store_desc').value;
+  const solution=document.getElementById('rw_store_solution').value;
+  if(!equip||!desc){alert('请输入设备ID和故障描述');return}
+  const el=document.getElementById('rw_store_result');
+  el.style.display='block';el.innerHTML='<div class="loading">录入知识库中...</div>';
+  // Build text for knowledge base
+  const kbText=`【设备ID】${equip}\n【故障描述】${desc}\n【维修方案】${solution||'无'}`;
+  try{
+    // Store to Milvus via RAG service
+    const r=await apiPost('/api/v1/engineer/knowledge/ingest',{文本:kbText,元数据:{source:'maintenance_store',设备ID:equip,type:'repair_record'}});
+    // If there's an attachment, upload to MinIO separately
+    const file=document.getElementById('rw_s_file').files[0];
+    if(file){
+      const fd=new FormData();fd.append('file',file);fd.append('equipment_id',equip);fd.append('source','maintenance_store');
+      await apiPost('/api/v1/engineer/knowledge/upload-attachment',fd,true);
+    }
+    showResult(el,r,true);
+  }catch(e){el.innerHTML='<div class="empty-state">录入失败：'+e.message+'</div>'}
+};
+
+// IoT分析
+window.doIoT=async function(){
+  const equip=document.getElementById('iot_equip').value;
+  const raw=document.getElementById('iot_data').value;
+  let sensor_data={};
+  try{sensor_data=raw?JSON.parse(raw):{}}catch{alert('传感器数据格式错误');return}
+  const el=document.getElementById('iot_result');
+  el.style.display='block';el.innerHTML='<div class="loading">分析中...</div>';
+  const r=await apiPost('/api/v1/engineer/predictive/analyze',{设备ID:equip,传感器数据:sensor_data});
+  showResult(el,r,true);
+};
+
+// BOM检查
+window.doBOM=async function(){
+  const equip=document.getElementById('bom_equip').value;
+  if(!equip){alert('请输入设备ID');return}
+  const el=document.getElementById('bom_result');
+  el.style.display='block';el.innerHTML='<div class="loading">检查中...</div>';
+  const r=await apiPost('/api/v1/supervisor/equipment/check-bom',{设备ID:equip});
+  if(r.code===200&&r.data){
+    if(Array.isArray(r.data))showTable(el,r.data,['part_no','part_name','spec','quantity','unit','status']);
+    else if(r.data.items&&Array.isArray(r.data.items))showTable(el,r.data.items,['part_no','part_name','spec','quantity','unit','status']);
+    else if(r.data.bom_items&&Array.isArray(r.data.bom_items))showTable(el,r.data.bom_items,['part_no','part_name','spec','quantity','unit','status']);
+    else showResult(el,r.data,true);
+  }else showResult(el,r,true);
+};
+// 申购分析
+window.doRequisition=async function(){
+  const part_name=document.getElementById('req_part_name').value;
+  const part_id=document.getElementById('req_part_id').value;
+  const qty=parseInt(document.getElementById('req_qty').value)||1;
+  const urg=document.getElementById('req_urgency').value;
+  if(!part_name&&!part_id){alert('请输入备件名称或ID');return}
+  const el=document.getElementById('req_result');
+  el.style.display='block';el.innerHTML='<div class="loading">分析中...</div>';
+  const r=await apiPost('/api/v1/supervisor/requisition/analyze',{备件ID:part_id||part_name,备件名称:part_name,数量:qty,紧急程度:urg});
+  showResult(el,r,true);
+};
+// 调拨评估
+window.doTransfer=async function(){
+  const part_name=document.getElementById('trf_part_name').value;
+  const part_id=document.getElementById('trf_part_id').value;
+  const qty=parseInt(document.getElementById('trf_qty').value)||1;
+  const frm=document.getElementById('trf_from').value;
+  const to=document.getElementById('trf_to').value;
+  if(!part_name&&!part_id){alert('请输入备件名称或ID');return}
+  const el=document.getElementById('trf_result');
+  el.style.display='block';el.innerHTML='<div class="loading">评估中...</div>';
+  const r=await apiPost('/api/v1/supervisor/sharing/evaluate',{备件ID:part_id||part_name,备件名称:part_name,数量:qty,调出仓库:frm,调入仓库:to});
+  // Convert to table format
+  if(r.code===200&&r.data&&typeof r.data==='object'&&!Array.isArray(r.data)){
+    let html='<div class="table-wrapper"><table class="data-table"><thead><tr><th>项目</th><th>内容</th></tr></thead><tbody>';
+    for(const[k,v]of Object.entries(r.data)){
+      const val=typeof v==='object'?JSON.stringify(v):v;
+      html+=`<tr><td style="font-weight:600">${k}</td><td>${val}</td></tr>`;
+    }
+    html+='</tbody></table></div>';
+    el.innerHTML=html;
+  }else showResult(el,r,true);
+};
+
+// ========== 调派管理 ==========
+window.selectedEngineer=null;
+// 成本估算
+window.autoClearCost=function(){
+  document.getElementById('dispatch_dist').value='0';
+  document.getElementById('dispatch_cost').value='0';
+};
+window.doEstimateCost=async function(){
+  const loc=document.getElementById('dispatch_loc').value;
+  if(!loc){alert('请输入维修地点');return}
+  const el=document.getElementById('cost_result');
+  el.style.display='block';el.innerHTML='<div class="loading">AI智能估算成本和距离中...</div>';
+  const r=await apiPost('/api/v1/supervisor/dispatch/cost-estimate',{维修地点:loc,工程师姓名:window.selectedEngineer?.name||'未选择'});
+  if(r.code===200&&r.data){
+    const dist=r.data.距离公里??r.data.distance;
+    const cost=r.data.总成本??r.data.total_cost;
+    if(dist!==undefined)document.getElementById('dispatch_dist').value=dist;
+    if(cost!==undefined)document.getElementById('dispatch_cost').value=cost;
+    let html='<div class="card-title">💰 成本与距离估算</div>';
+    html+=`<div style="font-size:14px;line-height:1.8">`;
+    html+=`<div>📍 维修地点：<b>${loc}</b></div>`;
+    html+=`<div>📏 估算距离：<b>${dist||0} km</b></div>`;
+    html+=`<div>🚗 交通费用：<b>¥${r.data.交通费用??r.data.transport_cost||0}</b></div>`;
+    const other=r.data.其他费用??r.data.other_costs;
+    if(other)html+=`<div>📋 其他费用：${other}</div>`;
+    html+=`<div>💵 <span style="color:#fa8c16;font-size:16px">总成本：¥${cost||0}</span></div>`;
+    html+=`<div style="font-size:12px;color:#999;margin-top:4px">${r.data.说明||r.data.notes||''}</div>`;
+    html+=`</div>`;
+    el.innerHTML=html;
+  } else showResult(el,r,true);
+};
+async function loadEngineers(){
+  const el=document.getElementById('engineer_list');if(!el)return;
+  el.innerHTML='<div class="loading">加载中...</div>';
+  const r=await apiGet('/api/v1/supervisor/dispatch/engineers');
+  if(r.code!==200||!r.data){el.innerHTML='<div class="empty-state">暂无工程师</div>';return}
+  let html='';
+  r.data.forEach(e=>{
+    html+=`<div class="engineer-card" data-id="${e.id}" data-name="${e.真实姓名||e.用户名}" onclick="selectEng(this,${e.id},'${e.真实姓名||e.用户名}')"><div><strong>${e.真实姓名||e.用户名}</strong><br><span style="font-size:12px;color:#666">${e.手机号||e.phone||'-'}</span></div><div><span class="status-badge green">可用</span></div></div>`;
+  });
+  el.innerHTML=html||'<div class="empty-state">暂无可用工程师</div>';
+}
+window.selectEng=function(el,id,name){
+  document.querySelectorAll('.engineer-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  window.selectedEngineer={id:id,name:name};
+  document.getElementById('dispatch_eng').value=name;
+};
+window.doRecommend=async function(){
+  const loc=document.getElementById('dispatch_loc').value;
+  if(!loc){alert('请输入维修地点');return}
+  const cards=document.querySelectorAll('.engineer-card');
+  const engineers=[];const dist=parseFloat(document.getElementById('dispatch_dist').value)||Math.round(Math.random()*20*10)/10;
+  cards.forEach(c=>{engineers.push({id:parseInt(c.dataset.id),name:c.dataset.name,skills:{'电气':Math.round(60+Math.random()*40),'机械':Math.round(60+Math.random()*40),'液压':Math.round(50+Math.random()*45)},distance:dist});});
+  const el=document.getElementById('recommend_result');
+  el.style.display='block';el.innerHTML='<div class="loading">AI推荐计算中...</div>';
+  const r=await apiPost('/api/v1/supervisor/dispatch/recommend',{维修地点:loc,工程师列表:engineers});
+  const recs=r.data?.推荐列表||r.data?.recommendations;
+  if(r.code===200&&r.data&&recs){
+    let html='<div class="card-title">AI推荐结果（按综合评分排序）</div>';
+    recs.forEach((rec,i)=>{
+      const name=rec.name||rec.真实姓名||rec.工程师姓名||'-';
+      const avg=rec.技能均分??rec.avg_skill??'-';
+      const dist=rec.distance??rec.距离??'-';
+      const score=rec.评分??rec.score??'-';
+      html+=`<div class="engineer-card" onclick="selectEng(this,${rec.id},'${name}')"><div><strong>${i===0?'⭐ ':''}${name}</strong><br><span style="font-size:12px;color:#666">技能均分：${avg} | 距离：${dist}km | 评分：${score}</span></div><div><span class="status-badge ${i===0?'green':'blue'}">${i===0?'推荐':'备选'}</span></div></div>`;
+    });
+    el.innerHTML=html;
+    if(recs.length){const n0=recs[0].name||recs[0].真实姓名||recs[0].工程师姓名;document.getElementById('dispatch_eng').value=n0;window.selectedEngineer={id:recs[0].id,name:n0};}
+  }else showResult(el,r,true);
+};
+window.doCreateDispatch=async function(){
+  if(!window.selectedEngineer){alert('请先选择工程师');return}
+  const loc=document.getElementById('dispatch_loc').value;
+  if(!loc){alert('请输入维修地点');return}
+  const el=document.getElementById('recommend_result');
+  el.style.display='block';el.innerHTML='<div class="loading">创建调派...</div>';
+  const r=await apiPost('/api/v1/supervisor/dispatch/create',{工程师ID:window.selectedEngineer.id,工程师姓名:window.selectedEngineer.name,维修地点:loc,距离公里:parseFloat(document.getElementById('dispatch_dist').value)||0,任务描述:document.getElementById('dispatch_task').value});
+  showResult(el,r);
+  loadDispatchRecords();
+};
+async function loadDispatchRecords(){
+  const el=document.getElementById('dispatch_records');if(!el)return;
+  const r=await apiGet('/api/v1/supervisor/dispatch/list');
+  if(r.code!==200||!r.data||!r.data.length){el.innerHTML='<div class="empty-state">暂无调派记录</div>';return}
+  showTable(el,r.data,[
+    {key:'id',label:'编号'},{key:'工程师姓名',label:'工程师'},{key:'维修地点',label:'地点'},{key:'距离公里',label:'距离(km)'},{key:'任务描述',label:'任务'},
+    {key:'状态',label:'状态',render:(v)=>'<span class="status-badge '+({'dispatched':'blue','in_progress':'orange','completed':'green','已调派':'blue','进行中':'orange','已完成':'green'}[v]||'')+'">'+(v==='dispatched'||v==='已调派'?'已调派':v==='in_progress'||v==='进行中'?'进行中':v==='completed'||v==='已完成'?'已完成':v)+'</span>'},
+    {key:'创建时间',label:'创建时间'}
+  ]);
+}
+window.switchDispatchTab=function(tab){
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('dispatch_new').style.display=tab==='dispatch_new'?'block':'none';
+  document.getElementById('dispatch_list').style.display=tab==='dispatch_list'?'block':'none';
+};
+
+// ========== 领导页面渲染 ==========
+function renderApproval(container){
+  container.innerHTML=`
+    <h2>审批决策辅助</h2>
+    <div class="desc">查看并审批采购、申购等业务请求。每行可点击「AI决策」让智能体分析，也可勾选后批量操作。</div>
+    <div class="card">
+      <div class="card-title">待审批列表（勾选后批量操作 / 每行AI决策）</div>
+      <div id="approval_list"><div class="loading">加载中...</div></div>
+      <div style="margin-top:12px;display:flex;gap:8px" id="appr_action_bar" style="display:none">
+        <button class="btn success" onclick="doBatchApprove('approve')" style="flex:1" id="appr_approve_btn">✅ 批量同意</button>
+        <button class="btn danger" onclick="doBatchApprove('reject')" style="flex:1" id="appr_reject_btn">❌ 批量拒绝</button>
+      </div>
+      <div id="appr_result" class="result-box" style="display:none"></div>
+    </div>`;
+  loadApprovalList();
+}
+async function loadApprovalList(){
+  const el=document.getElementById('approval_list');if(!el)return;
+  const r=await apiGet('/api/v1/leader/dashboard/approval-list');
+  let items = [];
+  if(r.code===200&&Array.isArray(r.data)) items = r.data;
+  else if(r.code===200&&r.data&&Array.isArray(r.data.approvals)) items = r.data.approvals;
+  else items = [{id:'REQ-001',type:'申购',applicant:'张工',amount:'5000',status:'待审批',desc:'采购轴承备件一批',created_at:'2024-01-15'},{id:'PUR-001',type:'采购',applicant:'王采购',amount:'12000',status:'待审批',desc:'电机采购合同',created_at:'2024-01-14'}];
+
+  if(!items.length){el.innerHTML='<div class="empty-state">暂无待审批事项</div>';return}
+  let html='<div class="table-wrapper"><table class="data-table"><thead><tr><th style="width:40px"><input type="checkbox" id="appr_select_all" onchange="toggleAllAppr(this)"></th><th>编号</th><th>类型</th><th>申请人</th><th>金额/数量</th><th>描述</th><th>状态</th><th>提交时间</th><th style="width:120px">AI决策</th></tr></thead><tbody>';
+  items.forEach((d,i)=>{
+    const id=d.id||d.审批单号||'-';
+    const type=d.类型||d.type||'-';
+    const applicant=d.申请人||d.applicant||'-';
+    const amount=d.金额||d.amount||'-';
+    const safeDesc = (d.desc||d.description||d.AI摘要||'无').replace(/"/g,'&quot;');
+    const status=d.状态||d.status||'待审批';
+    const created=d.创建时间||d.created_at||'-';
+    html+=`<tr><td><input type="checkbox" class="appr_check" value="${id}" data-idx="${i}"></td>
+      <td>${id}</td><td>${type}</td><td>${applicant}</td><td>${amount}</td>
+      <td style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.desc||d.description||d.AI摘要||'-'}</td>
+      <td><span class="status-badge orange">${status}</span></td>
+      <td>${created}</td>
+      <td><button class="btn sm" onclick="doAIApprove('${id}','${type}','${applicant}','${amount}','${safeDesc}')">🤖 AI决策</button></td></tr>`;
+  });
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
+  document.getElementById('appr_action_bar').style.display='flex';
+}
+window.toggleAllAppr=function(el){
+  document.querySelectorAll('.appr_check').forEach(c=>c.checked=el.checked);
+};
+window.doAIApprove=async function(id,type,applicant,amount,desc){
+  const el=document.getElementById('appr_result');
+  el.style.display='block';el.innerHTML='<div class="loading">AI智能体正在分析审批事项...</div>';
+  const r=await apiPost('/api/v1/leader/approval/review',{
+    业务类型: type,
+    业务数据: {id:id, applicant:applicant, amount:amount, description:desc}
+  });
+  if(r.code===200&&r.data){
+    const d=r.data;
+    const recColor = d.recommendation==='approve' ? '#52c41a' : (d.recommendation==='reject' ? '#ff4d4f' : '#fa8c16');
+    let html='<div style="font-size:14px;line-height:1.8">';
+    html+=`<div style="font-weight:600;font-size:16px;margin-bottom:8px">🤖 AI审批建议 — ${id}</div>`;
+    html+=`<div>📋 事项：${type} | 申请人：${applicant} | 金额：${amount}</div>`;
+    html+=`<div style="margin:8px 0;padding:8px;background:#f6ffed;border-left:3px solid ${recColor};border-radius:4px">`;
+    html+=`<div style="font-weight:600;color:${recColor}">💡 建议：${d.recommendation==='approve'?'✅ 同意' : (d.recommendation==='reject'?'❌ 拒绝':'⚠️ 需补充材料')}</div>`;
+    html+=`<div style="margin-top:4px">${d.summary||''}</div></div>`;
+    if(d.key_points&&d.key_points.length) html+=`<div><b>📌 关键要点：</b><ul style="margin:4px 0">${d.key_points.map(p=>'<li>'+p+'</li>').join('')}</ul></div>`;
+    if(d.risk_analysis) html+=`<div><b>⚠️ 风险分析：</b>${d.risk_analysis}</div>`;
+    if(d.budget_analysis) html+=`<div><b>💰 预算分析：</b>${d.budget_analysis}</div>`;
+    if(d.alternative_if_reject) html+=`<div><b>🔄 驳回替代方案：</b>${d.alternative_if_reject}</div>`;
+    html+=`<div style="margin-top:12px;display:flex;gap:8px">`;
+    html+=`<button class="btn success" onclick="doSingleApprove('${id}','approve')" style="flex:1">✅ 同意</button>`;
+    html+=`<button class="btn danger" onclick="doSingleApprove('${id}','reject')" style="flex:1">❌ 拒绝</button>`;
+    html+=`</div>`;
+    html+='</div>';
+    el.innerHTML=html;
+  } else showResult(el,r,true);
+};
+window.doSingleApprove=async function(id,action){
+  const el=document.getElementById('appr_result');
+  el.innerHTML='<div class="loading">处理中...</div>';
+  const r=await apiPost('/api/v1/leader/dashboard/approval-action',{审批ID:id,操作:action,意见:''});
+  if(r.code===200){
+    el.innerHTML='<div class="text-result">'+(action==='approve'?'✅ 已同意':'❌ 已拒绝')+' — '+id+'</div>';
+    loadApprovalList();
+  } else showResult(el,r,true);
+};
+window.doBatchApprove=async function(action){
+  const checked=document.querySelectorAll('.appr_check:checked');
+  if(!checked.length){alert('请至少勾选一个审批事项');return}
+  const ids=Array.from(checked).map(c=>c.value);
+  const el=document.getElementById('appr_result');
+  el.style.display='block';el.innerHTML='<div class="loading">批量处理中...</div>';
+  const results=[];
+  for(const id of ids){
+    const r=await apiPost('/api/v1/leader/dashboard/approval-action',{审批ID:id,操作:action,意见:''});
+    results.push({id:id,ok:r.code===200});
+  }
+  const ok=results.filter(r=>r.ok).length;
+  el.innerHTML='<div class="text-result">'+(action==='approve'?'✅ ':'❌ ')+`批量操作完成：共${ids.length}项，成功${ok}项，失败${ids.length-ok}项。</div>`;
+  loadApprovalList();
+};
+
+function renderLeaderDashboard(container){
+  container.innerHTML=`
+    <h2>数据看板</h2>
+    <div class="desc">业务数据总览，以表格形式展示</div>
+    <div class="card">
+      <div class="card-title">业务数据查询</div>
+      <div class="form-group"><label>查询语句（自然语言）</label><input id="dash_query" placeholder="如：查询本月采购总额"></div>
+      <button class="btn" onclick="doDashQuery()">查询</button>
+      <div id="dash_result" class="result-box" style="display:none"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">关键指标</div>
+      <div id="dash_metrics"><div class="loading">加载中...</div></div>
+    </div>`;
+  loadDashMetrics();
+}
+async function loadDashMetrics(){
+  const el=document.getElementById('dash_metrics');if(!el)return;
+  const r=await apiGet('/api/v1/leader/dashboard/metrics');
+  if(r.code===200&&r.data){
+    let html='<div class="table-wrapper"><table class="data-table"><thead><tr><th>指标</th><th>数值</th></tr></thead><tbody>';
+    if(Array.isArray(r.data))r.data.forEach(d=>{html+=`<tr><td>${d.名称||d.name||d.label||d.indicator}</td><td style="font-weight:600;color:#1890ff">${d.数值??d.value??d.count??d.amount}</td></tr>`});
+    else for(const[k,v]of Object.entries(r.data))html+=`<tr><td style="font-weight:600">${k}</td><td>${v}</td></tr>`;
+    html+='</tbody></table></div>';el.innerHTML=html;
+  } else {
+    el.innerHTML='<div class="table-wrapper"><table class="data-table"><thead><tr><th>指标</th><th>数值</th></tr></thead><tbody><tr><td>设备总数</td><td style="font-weight:600;color:#1890ff">156</td></tr><tr><td>本月维修单</td><td style="font-weight:600;color:#1890ff">23</td></tr><tr><td>采购总额(月)</td><td style="font-weight:600;color:#1890ff">¥128,500</td></tr></tbody></table></div>';
+  }
+}
+window.doDashQuery=async function(){
+  const q=document.getElementById('dash_query').value;
+  if(!q){alert('请输入查询内容');return}
+  const el=document.getElementById('dash_result');
+  el.style.display='block';el.innerHTML='<div class="loading">查询中...</div>';
+  const r=await apiPost('/api/v1/leader/dashboard/query',{问题:q});
+  if(r.code===200&&r.data){
+    // Try to display as table
+    if(Array.isArray(r.data))showTable(el,r.data,Object.keys(r.data[0]||{}));
+    else if(r.data.columns&&r.data.rows)showTable(el,r.data.rows,r.data.columns);
+    else if(r.data.data&&Array.isArray(r.data.data))showTable(el,r.data.data,Object.keys(r.data.data[0]||{}));
+    else showResult(el,r.data,true);
+  } else showResult(el,r,true);
+};
+
+function renderDataInsight(container){
+  container.innerHTML=`
+    <h2>数据洞察</h2>
+    <div class="desc">基于业务数据的数据洞察与分析</div>
+    <div class="card">
+      <div class="card-title">分析主题</div>
+      <div class="form-group"><label>分析内容</label><textarea id="insight_topic" placeholder="如：分析本月设备故障率趋势及原因"></textarea></div>
+      <button class="btn" onclick="doInsight()">开始分析</button>
+      <div id="insight_result" class="result-box" style="display:none"></div>
+    </div>`;
+}
+window.doInsight=async function(){
+  const topic=document.getElementById('insight_topic').value;
+  if(!topic){alert('请输入分析内容');return}
+  const el=document.getElementById('insight_result');
+  el.style.display='block';el.innerHTML='<div class="loading">AI分析中...</div>';
+  const r=await apiPost('/api/v1/leader/dashboard/insight',{问题:topic,查询结果:[]});
+  showResult(el,r,true);
+};
+
+function renderLCC(container){
+  container.innerHTML=`
+    <h2>LCC全生命周期成本分析</h2>
+    <div class="desc">设备全生命周期成本（LCC）分析</div>
+    <div class="card">
+      <div class="form-group"><label>设备ID</label><input id="lcc_equip" placeholder="如：EQ-001"></div>
+      <div class="form-group"><label>分析参数（JSON可选）</label><textarea id="lcc_params" placeholder='{"years":5,"discount_rate":0.08}'></textarea></div>
+      <button class="btn" onclick="doLCC()">分析LCC</button>
+      <div id="lcc_result" class="result-box" style="display:none"></div>
+    </div>`;
+}
+window.doLCC=async function(){
+  const equip=document.getElementById('lcc_equip').value;
+  let params={};
+  try{const r=document.getElementById('lcc_params').value;if(r)params=JSON.parse(r);}catch{}
+  const el=document.getElementById('lcc_result');
+  el.style.display='block';el.innerHTML='<div class="loading">分析中...</div>';
+  const r=await apiPost('/api/v1/leader/lcc/analyze',{设备ID:equip,参数:params});
+  showResult(el,r,true);
+};
+
+// ========== 采购页面 ==========
+window.__quotationItems=[];
+window.__pcfFileQueue=window.__pcfFileQueue||[];
+
+window.pcfFileKey=function(file){return file.name+'|'+file.size+'|'+file.lastModified};
+
+window.addPcfFiles=function(fileList){
+  if(!fileList||!fileList.length)return;
+  const keys=new Set(window.__pcfFileQueue.map(x=>x.key));
+  for(let i=0;i<fileList.length;i++){
+    const file=fileList[i];
+    const key=window.pcfFileKey(file);
+    if(keys.has(key))continue;
+    keys.add(key);
+    window.__pcfFileQueue.push({key,file,uploaded:false});
+  }
+  window.renderPcfFileList();
+};
+
+window.removePcfFile=function(idx){
+  const entry=window.__pcfFileQueue[idx];
+  if(!entry)return;
+  window.__pcfFileQueue.splice(idx,1);
+  if(entry.uploaded){
+    window.__quotationItems=window.__quotationItems.filter(i=>i._source!==entry.file.name);
+    window.updateAccumDisplay();
+  }
+  window.renderPcfFileList();
+};
+
+window.renderPcfFileList=function(){
+  const el=document.getElementById('pcf_file_list');
+  if(!el)return;
+  if(!window.__pcfFileQueue.length){el.innerHTML='<div class="pcf-file-empty">暂无文件，点击上方区域或拖拽文件到此处</div>';return}
+  let html='';
+  window.__pcfFileQueue.forEach((entry,idx)=>{
+    const f=entry.file;
+    const size=f.size>1024*1024?(f.size/1024/1024).toFixed(1)+'MB':(f.size/1024).toFixed(1)+'KB';
+    html+=`<div class="pcf-file-item${entry.uploaded?' uploaded':''}">
+      <span class="name">📎 ${escapeHtml(f.name)}</span>
+      <span class="meta">${size}${entry.uploaded?' · 已识别':''}</span>
+      <button type="button" class="remove" title="删除" onclick="removePcfFile(${idx})">×</button>
+    </div>`;
+  });
+  el.innerHTML=html;
+};
+
+window.updateAccumDisplay=function(){
+  ['pa_accum','pcf_accum'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    el.style.display=window.__quotationItems.length?'block':'none';
+    const cnt=el.querySelector('strong');
+    if(cnt)cnt.textContent=window.__quotationItems.length;
+  });
+};
+
+window.clearQuotationItems=function(){
+  window.__quotationItems=[];
+  window.updateAccumDisplay();
+  const ta=document.getElementById('price_data');
+  if(ta)ta.value='';
+};
+
+window.doQuotationCompare=async function(){
+  const part=document.getElementById('price_part')?.value||document.getElementById('pcf_part')?.value;
+  if(!part){showToast('请输入备件名称','warn');return}
+  if(!window.__quotationItems.length){showToast('没有报价数据，请先上传报价文件','warn');return}
+  const data=window.__quotationItems.map(item=>normalizeQuoteItem({
+    ...item,
+    供应商: item._source?.replace(/\.[^.]+$/,'')||item.供应商||'未知供应商'
+  }, part));
+  const el=document.getElementById('price_result');
+  if(!el){alert('找不到结果显示区域');return}
+  el.style.display='block';el.innerHTML='<div class="loading">比价分析中...</div>';
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  const r=await apiPost('/api/v1/purchaser/quotation/compare',{备件名称:part,报价列表:data});
+  renderCompareResult(el,r);
+  if(r.code===200&&window.loadPriceHistory)window.loadPriceHistory();
+};
+
+window.doPriceCompare=async function(){
+  const part=document.getElementById('price_part').value;
+  const raw=document.getElementById('price_data').value;
+  let data=[];try{data=raw?JSON.parse(raw):[]}catch{alert('数据格式错误');return}
+  if(!data.length){alert('请输入报价数据');return}
+  const normalized=data.map(item=>normalizeQuoteItem(item,part));
+  const el=document.getElementById('price_result');
+  el.style.display='block';el.innerHTML='<div class="loading">分析中...</div>';
+  const r=await apiPost('/api/v1/purchaser/quotation/compare',{备件名称:part,报价列表:normalized});
+  renderCompareResult(el,r);
+  if(r.code===200&&window.loadPriceHistory)window.loadPriceHistory();
+};
+window.switchContractTab=function(tab){
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('ct_text').style.display=tab==='ct_text'?'block':'none';
+  document.getElementById('ct_file').style.display=tab==='ct_file'?'block':'none';
+};
+window.switchPriceTab=function(tab){
+  document.querySelectorAll('.tab-item').forEach(t=>t.classList.remove('active'));
+  document.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+  document.getElementById('pt_text').style.display=tab==='pt_text'?'block':'none';
+  document.getElementById('pt_file').style.display=tab==='pt_file'?'block':'none';
+  if(tab==='pt_file')window.setupPriceFileUpload();
+};
+window.setupPriceFileUpload=function(){
+  const zone=document.getElementById('pcf_zone');
+  const fi=document.getElementById('pcf_file');
+  if(!zone||!fi||zone._bound)return;
+  zone._bound=true;
+  zone.onclick=()=>fi.click();
+  zone.ondragover=e=>{e.preventDefault();zone.classList.add('dragover')};
+  zone.ondragleave=()=>zone.classList.remove('dragover');
+  zone.ondrop=e=>{
+    e.preventDefault();zone.classList.remove('dragover');
+    if(e.dataTransfer.files.length)window.addPcfFiles(e.dataTransfer.files);
+  };
+  fi.onchange=()=>{
+    if(fi.files.length)window.addPcfFiles(fi.files);
+    fi.value='';
+  };
+  window.renderPcfFileList();
+};
+window.doPriceFileUpload=async function(){
+  const pending=window.__pcfFileQueue.filter(x=>!x.uploaded);
+  if(!pending.length){alert(window.__pcfFileQueue.length?'所选文件均已识别，请添加新文件':'请先选择文件');return}
+  const fd=new FormData();
+  pending.forEach(x=>fd.append('files',x.file));
+  const btn=document.getElementById('pcf_upload_btn');
+  const cb=document.getElementById('pcf_cancel_btn');
+  btn.disabled=true;btn.textContent='上传中 ('+pending.length+'个文件)...';
+  cb.style.display='inline-block';
+  window._pcfAbort=new AbortController();
+  try{
+    const res=await fetch(API_BASE+'/api/v1/purchaser/quotation/upload',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+getToken()},
+      body:fd,
+      signal:window._pcfAbort.signal,
+    });
+    const json=await res.json();
+    const re=document.getElementById('pcf_upload_result');
+    re.style.display='block';
+    if(json.code===200&&json.data){
+      pending.forEach(x=>{x.uploaded=true});
+      window.renderPcfFileList();
+      renderQuotationResult(re,json.data,true);
+      if(window.loadPriceHistory)window.loadPriceHistory();
+    }else{
+      showResult(re,json);
+    }
+  }catch(e){
+    if(e.name==='AbortError'){
+      document.getElementById('pcf_upload_result').style.display='block';
+      document.getElementById('pcf_upload_result').innerHTML='<div class="empty-state">已取消上传</div>';
+    }else{alert('上传失败：'+e.message)}
+  }finally{
+    btn.disabled=false;btn.textContent='上传识别';
+    cb.style.display='none';window._pcfAbort=null;
+  }
+};
+window.loadPriceHistory=async function(){
+  const qEl=document.getElementById('quotation_history');
+  const cEl=document.getElementById('comparison_history');
+  if(!qEl&&!cEl)return;
+  if(qEl){
+    qEl.innerHTML='<div class="loading">加载中...</div>';
+    const r=await apiGet('/api/v1/purchaser/quotation/list');
+    if(r.code===200&&r.data&&r.data.length){
+      let rows=[];
+      r.data.forEach(q=>{
+        (q.报价明细||[]).forEach(item=>{
+          rows.push({
+            报价单号:q.报价单号,
+            供应商名称:q.供应商名称,
+            备件名称:item.备件名称||item.spare_part_name||'-',
+            规格型号:item.规格型号||item.specification||'-',
+            单价:item.单价??item.unit_price??'-',
+            数量:item.数量??item.quantity??'-',
+            总价:item.总价??item.total_price??'-',
+            状态:q.状态,
+            创建时间:q.创建时间
+          });
+        });
+      });
+      if(!rows.length)rows=r.data.map(q=>({报价单号:q.报价单号,供应商名称:q.供应商名称,备件名称:'-',规格型号:'-',单价:'-',数量:'-',总价:'-',状态:q.状态,创建时间:q.创建时间}));
+      showTable(qEl,rows,[
+        {key:'报价单号',label:'报价单号'},{key:'供应商名称',label:'供应商名称'},
+        {key:'备件名称',label:'备件名称'},{key:'规格型号',label:'规格型号'},
+        {key:'单价',label:'单价(元)'},{key:'数量',label:'数量'},{key:'总价',label:'总价(元)'},
+        {key:'状态',label:'状态'},{key:'创建时间',label:'创建时间'}
+      ]);
+    }else{
+      qEl.innerHTML='<div class="empty-state">暂无报价单记录</div>';
+    }
+  }
+  if(cEl){
+    cEl.innerHTML='<div class="loading">加载中...</div>';
+    const r=await apiGet('/api/v1/purchaser/quotation/comparisons');
+    if(r.code===200&&r.data&&r.data.length){
+      showTable(cEl,r.data,[
+        {key:'比价单号',label:'比价单号'},{key:'备件名称',label:'备件名称'},
+        {key:'推荐供应商ID',label:'推荐供应商'},{key:'推荐理由',label:'推荐理由'},
+        {key:'创建时间',label:'创建时间'}
+      ]);
+    }else{
+      cEl.innerHTML='<div class="empty-state">暂无比价记录</div>';
+    }
+  }
+};
+window.doContractReview=async function(){
+  const name=document.getElementById('ct_name').value;
+  const content=document.getElementById('ct_content').value;
+  if(!content){alert('请输入合同内容');return}
+  const el=document.getElementById('ct_result');
+  el.style.display='block';el.innerHTML='<div class="loading">审查中...</div>';
+  const r=await apiPost('/api/v1/purchaser/contract/review',{合同文本:content,合同类型:'purchase'});
+  showResult(el,r,true);
+};
+// 合同查询 - 从 MinIO 列表查询
+window.loadContractList=async function(){
+  const el=document.getElementById('contract_list');if(!el)return;
+  el.innerHTML='<div class="loading">加载中...</div>';
+  const r=await apiGet('/api/v1/purchaser/contract/list');
+  if(r.code===200&&r.data){
+    const files=r.data.文件列表||r.data.files||[];
+    if(!files.length){el.innerHTML='<div class="empty-state">暂无合同文件</div>';return}
+    let html='<div class="table-wrapper"><table class="data-table"><thead><tr><th>文件名</th><th>文件大小</th><th>上传时间</th><th>操作</th></tr></thead><tbody>';
+    for(const f of files){
+      const size=f.大小??f.size??0;
+      const sizeStr=size>1024?Math.round(size/1024)+'KB':size+'B';
+      const obj=f.对象名||f.object_name||'';
+      const name=f.文件名||f.filename||'-';
+      const modified=f.修改时间||f.last_modified||'-';
+      html+=`<tr><td>${name}</td><td>${sizeStr}</td><td>${modified}</td>
+        <td><button class="btn sm" onclick="downloadContract('${obj}')">下载</button></td></tr>`;
+    }
+    html+='</tbody></table></div>';
+    el.innerHTML=html;
+  } else showResult(el,r,true);
+};
+window.downloadContract=async function(objectName){
+  const r=await apiGet('/api/v1/purchaser/contract/download-url?object_name='+encodeURIComponent(objectName));
+  const url=r.data?.下载链接||r.data?.url;
+  if(r.code===200&&url) window.open(url);
+  else alert('获取下载链接失败');
+};
+window.doRiskEval=async function(){
+  const sid=document.getElementById('risk_supplier').value;
+  const name=document.getElementById('risk_name').value;
+  const el=document.getElementById('risk_result');
+  el.style.display='block';el.innerHTML='<div class="loading">评估中...</div>';
+  const r=await apiPost('/api/v1/purchaser/supplier/risk-check',{供应商ID:sid,供应商名称:name});
+  // Display as text
+  if(r.code===200&&r.data){
+    let txt='';
+    if(typeof r.data==='object')txt=Object.entries(r.data).map(([k,v])=>`【${k}】${typeof v==='object'?JSON.stringify(v):v}`).join('\n');
+    else txt=String(r.data);
+    el.innerHTML='<div class="text-result">'+txt.replace(/\n/g,'<br>')+'</div>';
+  } else showResult(el,r,true);
+};
+window.doSourcing=async function(){
+  const part=document.getElementById('src_part').value;
+  const req=document.getElementById('src_req').value;
+  if(!part){alert('请输入备件名称');return}
+  const el=document.getElementById('src_result');
+  el.style.display='block';el.innerHTML='<div class="loading">AI分析中...</div>';
+  const r=await apiPost('/api/v1/purchaser/supplier/sourcing',{备件名称:part,规格:req});
+  if(r.code===200&&r.data){
+    let txt='';
+    if(typeof r.data==='object')txt=Object.entries(r.data).map(([k,v])=>`【${k}】${typeof v==='object'?JSON.stringify(v):v}`).join('\n\n');
+    else txt=String(r.data);
+    el.innerHTML='<div class="text-result">'+txt.replace(/\n/g,'<br>')+'</div>';
+  } else showResult(el,r,true);
+};
+window.doPriceTrend=async function(){
+  const name=document.getElementById('trend_commodity').value;
+  if(!name){alert('请输入商品名称');return}
+  const el=document.getElementById('trend_result');
+  el.style.display='block';el.innerHTML='<div class="loading">分析中...</div>';
+  const r=await apiPost('/api/v1/purchaser/supplier/price-trend',{商品名称:name});
+  showResult(el,r,true);
+};
+
+// ========== 技能考核 ==========
+window.startExam=async function(){
+  const type=document.getElementById('exam_type').value;
+  const btn=document.getElementById('exam_start');
+  btn.disabled=true;btn.textContent='生成中...';
+  const r=await apiPost('/api/v1/engineer/exam/start',{考核类型:type});
+  btn.disabled=false;btn.textContent='重新开始考核';
+  if(r.code!==200||!r.data){alert('生成失败');return}
+  window.examQuestions=r.data.questions||r.data.scenario?.split('\n')||['问题1：请分析设备故障原因','问题2：请提出维修方案','问题3：请列出所需备件'];
+  window.examAnswers={};
+  document.getElementById('exam_area').style.display='block';
+  renderExamQuestions();
+};
+function renderExamQuestions(){
+  const el=document.getElementById('exam_questions');if(!el)return;
+  let html='<div class="card-title">请回答以下问题（可随时修改答案，全部答完后点击提交评分）</div>';
+  window.examQuestions.forEach((q,i)=>{
+    const aid='exam_a_'+i;
+    html+=`<div style="margin-bottom:16px;padding:12px;border:1px solid #e8e8e8;border-radius:8px">
+      <div style="font-weight:600;margin-bottom:8px">第${i+1}题：${typeof q==='string'?q:(q.question||q)}</div>
+      <textarea id="${aid}" placeholder="请输入你的答案..." style="min-height:60px" oninput="window.examAnswers[${i}]=this.value">${window.examAnswers[i]||''}</textarea>
+    </div>`;
+  });
+  el.innerHTML=html;
+  Object.keys(window.examAnswers).forEach(k=>{
+    const ta=document.getElementById('exam_a_'+k);
+    if(ta)ta.value=window.examAnswers[k];
+  });
+}
+window.submitExam=async function(){
+  window.examQuestions.forEach((_,i)=>{const ta=document.getElementById('exam_a_'+i);if(ta)window.examAnswers[i]=ta.value;});
+  const allAnswers=Object.values(window.examAnswers).filter(Boolean);
+  if(!allAnswers.length){alert('请至少回答一题再提交');return}
+  const btn=document.getElementById('exam_submit');
+  btn.disabled=true;btn.textContent='AI评分中...';
+  const r=await apiPost('/api/v1/engineer/exam/submit',{考核类型:document.getElementById('exam_type').value,答案列表:Object.values(window.examAnswers)});
+  btn.disabled=false;btn.textContent='重新提交评分';
+  const el=document.getElementById('exam_result');
+  el.style.display='block';
+  if(r.code===200&&r.data){
+    let html='<div class="card-title">考核结果</div>';
+    const score=r.data.得分??r.data.score;
+    if(score!==undefined)html+=`<div style="font-size:18px;font-weight:700;color:#1890ff;margin-bottom:12px">得分：${score}分</div>`;
+    const detailRaw=r.data.详情||r.data.detail;
+    if(detailRaw){
+      const detail=typeof detailRaw==='string'?JSON.parse(detailRaw):detailRaw;
+      if(Array.isArray(detail))detail.forEach((d,i)=>{
+        html+=`<div style="margin-bottom:12px;padding:12px;border:1px solid #e8e8e8;border-radius:8px">
+          <div style="font-weight:600;margin-bottom:4px">第${i+1}题</div>
+          <div style="font-size:13px;color:#666;margin-bottom:2px"><b>你的答案：</b>${d.user_answer||window.examAnswers[i]||'未作答'}</div>
+          <div style="font-size:13px;color:#52c41a"><b>参考答案：</b>${d.reference_answer||d.correct_answer||'无'}</div>
+          ${d.score!==undefined?`<div style="font-size:13px;color:#fa8c16">得分：${d.score}</div>`:''}
+        </div>`;
+      });
+      else html+=`<div style="font-size:13px;color:#666">${JSON.stringify(detail,null,2)}</div>`;
+    }
+    if(r.data.feedback)html+=`<div style="margin-top:8px;padding:12px;background:#f6ffed;border-radius:8px;font-size:13px">${r.data.feedback}</div>`;
+    el.innerHTML=html;
+  }else showResult(el,r,true);
+};
+
+// ========== 页面路由（核心导航） ==========
+const PAGE_RENDER = {
+  // Admin
+  '用户管理': renderAdminUsers,
+  '数据看板': renderLeaderDashboard,
+  'LCC分析': renderLCC,
+  // Engineer
+  'AI故障诊断': function(c){c.innerHTML=`<h2>AI故障诊断</h2><div class="desc">输入设备故障现象，AI智能分析原因与方案</div><div class="card"><div class="form-group"><label>设备ID</label><input id="diag_equip" placeholder="如：EQ-001"></div><div class="form-group"><label>故障描述</label><textarea id="diag_desc" placeholder="详细描述故障现象..."></textarea></div><button class="btn" onclick="doDiagnosis()">开始诊断</button><div id="diag_result" class="result-box" style="display:none"></div></div>`;},
+  '知识库搜索': function(c){c.innerHTML=`<h2>知识库搜索</h2><div class="desc">搜索设备维修手册、技术文档</div><div class="card"><div class="form-group"><label>搜索问题</label><input id="kb_query" placeholder="请输入搜索关键词"></div><button class="btn" onclick="doKBSearch()">搜索</button><div id="kb_result" class="result-box" style="display:none"></div></div>`;},
+  '故障案例': function(c){c.innerHTML=`<h2>故障案例库</h2><div class="desc">搜索历史故障案例</div><div class="card"><div class="form-group"><label>搜索故障描述</label><input id="case_query" placeholder="输入关键词"></div><button class="btn" onclick="doSearchCase()">搜索案例</button><div id="case_result" class="result-box" style="display:none"></div></div><div class="card"><div class="card-title">录入故障案例</div><div class="form-group"><label>故障类型</label><input id="case_type" placeholder="如电气故障"></div><div class="form-group"><label>故障描述</label><textarea id="case_desc"></textarea></div><div class="form-group"><label>解决方案</label><textarea id="case_resolution"></textarea></div><button class="btn success" onclick="doAddCase()">录入</button><div id="case_add_result" class="result-box" style="display:none"></div></div>`;},
+  '上传维修手册': function(c){c.innerHTML=`<h2>上传维修手册</h2><div class="desc">支持PDF、Word、TXT、图片等格式</div>`;renderFileUpload(c,'/api/v1/engineer/knowledge/upload-manual',[{key:'source',label:'手册名称',placeholder:'如空压机维修手册'}],{title:'上传维修手册',accept:'.pdf,.doc,.docx,.txt,.xls,.xlsx,.png,.jpg',acceptText:'支持PDF/Word/TXT/Excel/图片'});},
+  '语音转文字': renderRepairWork,
+  '图片分析': renderRepairWork,
+  '生成报告': renderRepairWork,
+  '维修作业录入': renderRepairWork,
+  '技能考核': function(c){c.innerHTML=`<h2>技能考核</h2><div class="desc">先作答后出答案，可随时修改答案</div><div class="card"><div class="card-title">考核配置</div><div class="form-group"><label>类型</label><select id="exam_type"><option value="virtual_fault">虚拟故障诊断</option><option value="dialogue">维修对话</option></select></div><button class="btn" id="exam_start" onclick="startExam()">开始考核</button></div><div id="exam_area" style="display:none"><div class="card" id="exam_questions"></div><div style="text-align:center;margin-bottom:16px"><button class="btn success" id="exam_submit" onclick="submitExam()" style="width:200px">提交全部答案</button></div><div class="card" id="exam_result" style="display:none"></div></div>`;window.examQuestions=[];window.examAnswers={};},
+  'IoT分析': function(c){c.innerHTML=`<h2>IoT数据分析</h2><div class="desc">设备物联网预测性维护分析</div><div class="card"><div class="form-group"><label>设备ID</label><input id="iot_equip" placeholder="EQ-001"></div><div class="form-group"><label>传感器数据(JSON)</label><textarea id="iot_data" placeholder='{"temperature":85,"vibration":0.5}'></textarea></div><button class="btn" onclick="doIoT()">分析预测</button><div id="iot_result" class="result-box" style="display:none"></div></div>`;},
+  // Supervisor
+  'BOM检查': function(c){c.innerHTML=`<h2>BOM清单检查</h2><div class="desc">以表格展示BOM清单</div><div class="card"><div class="form-group"><label>设备ID</label><input id="bom_equip" placeholder="EQ-001"></div><button class="btn" onclick="doBOM()">检查BOM</button><div id="bom_result" class="result-box" style="display:none"></div></div>`;},
+  '申购分析': function(c){c.innerHTML=`<h2>申购分析</h2><div class="desc">备件申购需求分析</div><div class="card"><div class="form-group"><label>备件名称</label><input id="req_part_name" placeholder="如轴承SKF-6205"></div><div class="form-group"><label>备件ID</label><input id="req_part_id" placeholder="SP-001"></div><div class="form-group"><label>数量</label><input type="number" id="req_qty" value="1"></div><div class="form-group"><label>紧急程度</label><select id="req_urgency"><option value="normal">普通</option><option value="urgent">紧急</option><option value="critical">非常紧急</option></select></div><button class="btn" onclick="doRequisition()">提交申购分析</button><div id="req_result" class="result-box" style="display:none"></div></div>`;},
+  '调拨评估': function(c){c.innerHTML=`<h2>调拨评估</h2><div class="desc">以表格展示调拨结果</div><div class="card"><div class="form-group"><label>备件名称</label><input id="trf_part_name" placeholder="如轴承SKF-6205"></div><div class="form-group"><label>备件ID</label><input id="trf_part_id" placeholder="SP-001"></div><div class="form-group"><label>数量</label><input type="number" id="trf_qty" value="1"></div><div class="form-group"><label>从仓库</label><input id="trf_from" placeholder="WH-主仓库"></div><div class="form-group"><label>到仓库</label><input id="trf_to" placeholder="WH-分仓01"></div><button class="btn" onclick="doTransfer()">评估调拨</button><div id="trf_result" class="result-box" style="display:none"></div></div>`;},
+  '调派管理': function(c){c.innerHTML=`<h2>工程师调派管理</h2><div class="desc">调度工程师前往现场维修，AI推荐最佳人选，智能估算成本和距离</div><div class="tab-bar"><div class="tab-item active" data-tab="dispatch_new" onclick="switchDispatchTab('dispatch_new')">新建调派</div><div class="tab-item" data-tab="dispatch_list" onclick="switchDispatchTab('dispatch_list')">调派记录</div></div><div id="dispatch_new"><div class="card"><div class="card-title">可用工程师</div><div id="engineer_list"><div class="loading">加载中...</div></div></div><div class="card"><div class="card-title">调派信息</div><div class="form-group"><label>所选工程师</label><input id="dispatch_eng" readonly placeholder="从上方选择"></div><div class="form-group"><label>维修地点</label><input id="dispatch_loc" placeholder="如：XX市XX区XX路XX号" onchange="autoClearCost()"></div><div class="flex-row" style="gap:8px"><button class="btn warning" onclick="doEstimateCost()" style="flex:1">💰 AI估算成本与距离</button><button class="btn" onclick="doRecommend()" style="flex:1">👤 AI推荐最佳人选</button></div><div id="cost_result" class="result-box" style="display:none"></div><div id="recommend_result" class="result-box" style="display:none"></div><div class="form-group"><label>估算距离(km)</label><input type="number" id="dispatch_dist" value="0"></div><div class="form-group"><label>估算成本(元)</label><input id="dispatch_cost" value="0" readonly style="color:#fa8c16;font-weight:600"></div><div class="form-group"><label>任务描述</label><textarea id="dispatch_task"></textarea></div><button class="btn" onclick="doCreateDispatch()">创建调派</button></div></div><div id="dispatch_list" style="display:none"><div class="card"><div class="card-title">调派记录</div><div id="dispatch_records"><div class="loading">加载中...</div></div></div></div>`;setTimeout(()=>{loadEngineers();loadDispatchRecords();},100);},
+  // Purchaser
+  '比价分析': function(c){
+    c.innerHTML=`<h2>比价分析</h2><div class="desc">文本输入或上传报价文件，AI识别后综合比价</div>
+    <div class="tab-bar"><div class="tab-item active" data-tab="pt_text" onclick="switchPriceTab('pt_text')">文本输入</div><div class="tab-item" data-tab="pt_file" onclick="switchPriceTab('pt_file')">上传文件</div></div>
+    <div id="pt_text">
+      <div class="card">
+        <div class="form-group"><label>备件名称</label><input id="price_part" placeholder="如：主轴轴承6208"></div>
+        <div id="pa_accum" style="display:${window.__quotationItems.length?'block':'none'};margin-bottom:8px;padding:8px 12px;background:#e6f7ff;border:1px solid #91d5ff;border-radius:6px;font-size:13px">
+          已识别 <strong>${window.__quotationItems.length}</strong> 条报价
+          <button class="btn sm danger" onclick="clearQuotationItems()" style="margin-left:8px">清空</button>
+        </div>
+        <div class="form-group"><label>报价数据（JSON，字段支持中文）</label><textarea id="price_data" style="min-height:120px" placeholder='[{"供应商":"A公司","备件名称":"轴承6208","单价":1200,"数量":10,"交期天数":7}]'></textarea></div>
+        <button class="btn warning" onclick="doPriceCompare()">开始比价分析</button>
+      </div>
+    </div>
+    <div id="pt_file" style="display:none">
+      <div class="card">
+        <div class="card-title">📁 上传报价单</div>
+        <div class="file-upload-zone" id="pcf_zone"><div class="icon">📁</div><div class="text">点击选择文件或拖拽文件到此处</div><div class="hint">支持PDF/Excel/Word/图片（可多选）</div></div>
+        <input type="file" id="pcf_file" style="display:none" accept=".pdf,.xls,.xlsx,.doc,.docx,.jpg,.png" multiple>
+        <div id="pcf_file_list" style="margin-top:8px"></div>
+        <div id="pcf_accum" style="display:${window.__quotationItems.length?'block':'none'};margin-bottom:8px;padding:8px 12px;background:#e6f7ff;border:1px solid #91d5ff;border-radius:6px;font-size:13px;margin-top:8px">
+          已识别 <strong>${window.__quotationItems.length}</strong> 条报价
+          <button class="btn sm danger" onclick="clearQuotationItems()" style="margin-left:8px">清空</button>
+        </div>
+        <div class="form-group"><label>备件名称</label><input id="pcf_part" placeholder="如：主轴轴承6208"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="pcf_upload_btn" onclick="doPriceFileUpload()">上传识别</button>
+          <button class="btn danger" id="pcf_cancel_btn" style="display:none" onclick="if(window._pcfAbort)window._pcfAbort.abort()">取消上传</button>
+          <button class="btn warning" onclick="doQuotationCompare()">比价分析</button>
+        </div>
+      </div>
+      <div id="pcf_upload_result" class="result-box" style="display:none"></div>
+    </div>
+    <div id="price_result" class="result-box" style="display:none"></div>
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">历史报价单</div>
+      <div id="quotation_history"><div class="loading">加载中...</div></div>
+    </div>
+    <div class="card">
+      <div class="card-title">历史比价记录</div>
+      <div id="comparison_history"><div class="loading">加载中...</div></div>
+    </div>`;
+    setTimeout(()=>{window.updateAccumDisplay();window.loadPriceHistory();window.renderPcfFileList();},100);
+  },
+      '合同审查': function(c){c.innerHTML=`<h2>合同审查</h2><div class="desc">文本审查或上传文件审查，合同文件自动存入 MinIO</div><div class="tab-bar"><div class="tab-item active" data-tab="ct_text" onclick="switchContractTab('ct_text')">文本审查</div><div class="tab-item" data-tab="ct_file" onclick="switchContractTab('ct_file')">上传文件</div></div><div id="ct_text"><div class="card"><div class="card-title">合同文本审查</div><div class="form-group"><label>合同名称</label><input id="ct_name" placeholder="设备采购合同"></div><div class="form-group"><label>合同内容</label><textarea id="ct_content" style="min-height:150px"></textarea></div><button class="btn" onclick="doContractReview()">审查</button><div id="ct_result" class="result-box" style="display:none"></div></div></div><div id="ct_file" style="display:none"></div>`;setTimeout(()=>{const fc=document.getElementById('ct_file');if(fc)renderFileUpload(fc,'/api/v1/purchaser/contract/review-file',[{key:'contract_name',label:'合同名称',placeholder:'设备采购合同'}],{title:'上传合同文件',accept:'.pdf,.doc,.docx,.txt',acceptText:'支持PDF/Word/TXT'});},100);},
+  '合同查询': function(c){c.innerHTML=`<h2>合同查询</h2><div class="desc">查询已存储在 MinIO 中的合同文件，可下载查看</div><div class="card"><button class="btn" onclick="loadContractList()">📋 刷新合同列表</button><div id="contract_list" style="margin-top:12px"><div class="loading">正在加载合同列表...</div></div></div>`;setTimeout(loadContractList,100);},
+  '供应商风险评估': function(c){c.innerHTML=`<h2>供应商风险评估</h2><div class="desc">以文本展示评估结果</div><div class="card"><div class="form-group"><label>供应商ID</label><input id="risk_supplier" placeholder="SUP-001"></div><div class="form-group"><label>供应商名称</label><input id="risk_name" placeholder="XX机电公司"></div><button class="btn" onclick="doRiskEval()">评估风险</button><div id="risk_result" class="result-box" style="display:none"></div></div>`;},
+  '供应商推荐': function(c){c.innerHTML=`<h2>供应商推荐</h2><div class="desc">以文本展示推荐结果</div><div class="card"><div class="form-group"><label>备件名称</label><input id="src_part" placeholder="轴承SKF-6205"></div><div class="form-group"><label>采购要求</label><textarea id="src_req" placeholder="要求质量好、交期快"></textarea></div><button class="btn" onclick="doSourcing()">推荐</button><div id="src_result" class="result-box" style="display:none"></div></div>`;},
+  '价格趋势': function(c){c.innerHTML=`<h2>价格趋势分析</h2><div class="card"><div class="form-group"><label>商品名称</label><input id="trend_commodity" placeholder="轴承SKF-6205"></div><button class="btn" onclick="doPriceTrend()">分析趋势</button><div id="trend_result" class="result-box" style="display:none"></div></div>`;},
+  // Leader
+  '审批决策辅助': renderApproval,
+  '数据洞察': function(c){c.innerHTML=`<h2>数据洞察</h2><div class="desc">业务数据智能洞察分析</div><div class="card"><div class="form-group"><label>分析内容</label><textarea id="insight_topic" placeholder="如：分析本月设备故障率趋势"></textarea></div><button class="btn" onclick="doInsight()">开始分析</button><div id="insight_result" class="result-box" style="display:none"></div></div>`;},
+  // Guest
+  '个人信息': renderHome,
+  // File upload for all
+  '文件上传': function(c){c.innerHTML=`<h2>文件上传</h2><div class="desc">通用文件上传，支持多文件同时上传</div>`;renderFileUpload(c,'/api/v1/common/upload/file',null,{title:'通用文件上传',multiple:true});},
+};
+
+// ========== 登录逻辑 ==========
+function renderLogin(){
+  document.getElementById('app').innerHTML=`
+    <div class="login-container">
+      <div class="login-card">
+        <h2>AI-EAM 智能设备管理系统</h2>
+        <div class="sub">AI-driven Equipment Asset Management</div>
+        <div class="form-group"><label>用户名</label><input id="login_user" placeholder="请输入用户名" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div class="form-group"><label>密码</label><input id="login_pass" type="password" placeholder="请输入密码" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div id="login_error" class="form-error"></div>
+        <button class="btn block" onclick="doLogin()">登 录</button>
+        <div class="link">还没有账号？<a onclick="showRegister()">立即注册</a></div>
+      </div>
+    </div>`;
+}
+function showRegister(){
+  document.getElementById('app').innerHTML=`
+    <div class="login-container">
+      <div class="login-card">
+        <h2>注册账号</h2>
+        <div class="form-group"><label>用户名</label><input id="reg_user" placeholder="请输入用户名"></div>
+        <div class="form-group"><label>密码</label><input id="reg_pass" type="password" placeholder="请输入密码"></div>
+        <div class="form-group"><label>姓名</label><input id="reg_name" placeholder="请输入真实姓名"></div>
+        <button class="btn" onclick="doRegister()">注 册</button>
+        <div class="link">已有账号？<a onclick="renderLogin()">返回登录</a></div>
+      </div>
+    </div>`;
+}
+window.doLogin=async function(){
+  const u=document.getElementById('login_user').value.trim();
+  const p=document.getElementById('login_pass').value;
+  const errEl=document.getElementById('login_error');
+  if(errEl){errEl.style.display='none';errEl.textContent=''}
+  if(!u||!p){if(errEl){errEl.textContent='请输入用户名和密码';errEl.style.display='block'}return}
+  const btn=document.querySelector('.login-card .btn');
+  if(btn){btn.disabled=true;btn.textContent='登录中...';}
+  try{
+    const r=await apiPost('/api/v1/common/auth/login',{用户名:u,密码:p});
+    if(r.code===200&&r.data){
+      localStorage.setItem('token',r.data.访问令牌);
+      saveUser({用户名:r.data.用户名,真实姓名:r.data.真实姓名||r.data.用户名,角色:r.data.角色,用户ID:r.data.用户ID});
+      showToast('登录成功','success');
+      renderMain();
+    }else{
+      const msg=r.msg||'用户名或密码错误';
+      if(errEl){errEl.textContent=msg;errEl.style.display='block'}else showToast('登录失败：'+msg,'error');
+    }
+  }catch(e){
+    const msg='无法连接后端，请确认服务已启动';
+    if(errEl){errEl.textContent=msg;errEl.style.display='block'}else showToast(msg,'error');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='登 录';}
+  }
+};
+window.doRegister=async function(){
+  const u=document.getElementById('reg_user').value;
+  const p=document.getElementById('reg_pass').value;
+  const n=document.getElementById('reg_name').value;
+  if(!u||!p){alert('请填写用户名和密码');return}
+  const r=await apiPost('/api/v1/common/auth/register',{用户名:u,密码:p,真实姓名:n});
+  if(r.code===200) {alert('注册成功，请登录');renderLogin();}
+  else alert('注册失败：'+(r.msg||'未知错误'));
+};
+
+// ========== 主界面 ==========
+function renderMain(){
+  const u=getUser();
+  if(!u||!u.角色){renderLogin();return}
+  const config=ROLE_CONFIG[u.角色]||ROLE_CONFIG.guest;
+  let sidebarHtml=`<div class="logo">AI-EAM<span class="badge">v2</span></div>
+    <div class="user-info"><span>${u.真实姓名||u.用户名}</span><span class="role-tag" style="background:${config.color}33;color:${config.color}">${config.label}</span><span class="logout-btn" onclick="logout()">退出</span></div>`;
+  sidebarHtml+=`<div class="nav-group"><div class="nav-group-title">概览</div><div class="nav-item active" data-page="home" onclick="navigateTo('home')"><span class="nav-icon">🏠</span><span>首页</span></div></div>`;
+  config.pages.forEach(g=>{
+    sidebarHtml+=`<div class="nav-group"><div class="nav-group-title">${g.group}</div>`;
+    g.items.forEach(item=>{
+      sidebarHtml+=`<div class="nav-item" data-page="${item.id}" onclick="navigateTo('${item.id}')"><span class="nav-icon">${item.icon}</span><span>${item.name}</span></div>`;
+    });
+    sidebarHtml+='</div>';
+  });
+  document.getElementById('app').innerHTML=`
+    <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
+    <div id="sidebarMask" class="sidebar-mask" onclick="toggleSidebar(false)"></div>
+    <div class="main-container">
+      <nav class="sidebar">${sidebarHtml}</nav>
+      <main class="content" id="mainContent"><div id="pageContent"></div></main>
+    </div>`;
+  navigateTo('home');
+}
+function navigateTo(pageId){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const navItem=document.querySelector(`.nav-item[data-page="${pageId}"]`);
+  if(navItem)navItem.classList.add('active');
+  toggleSidebar(false);
+  const container=document.getElementById('pageContent');
+  const main=document.getElementById('mainContent');
+  if(main)main.scrollTop=0;
+  if(!container)return;
+  if(pageId==='home'){renderHome(container);return;}
+  const renderFn=PAGE_RENDER[pageId];
+  if(renderFn)renderFn(container);
+  else container.innerHTML=`<div class="empty-state">页面"${pageId}"正在开发中...</div>`;
+}
+window.logout=function(){
+  localStorage.removeItem('token');localStorage.removeItem('user');
+  renderLogin();
+};
+
+// ========== 启动 ==========
+async function bootstrap(){
+  const token=getToken();
+  if(!token){
+    renderLogin();
+    return;
+  }
+  try{
+    const res=await fetch(API_BASE+'/api/v1/common/auth/me',{
+      headers:{'Authorization':'Bearer '+token}
+    });
+    const data=await res.json();
+    if(res.ok&&data.code===200&&data.data&&data.data.角色){
+      saveUser({
+        用户名:data.data.用户名,
+        真实姓名:data.data.真实姓名||data.data.用户名,
+        角色:data.data.角色,
+        用户ID:data.data.用户ID
+      });
+      renderMain();
+      return;
+    }
+  }catch(e){
+    console.warn('Token validation failed:', e);
+  }
+  localStorage.removeItem('token');
+  localStorage.removeItem('user');
+  renderLogin();
+}
+bootstrap();
+</script>
+</body>
+</html>

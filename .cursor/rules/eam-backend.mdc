@@ -1,0 +1,64 @@
+---
+description: EAM-AI FastAPI backend conventions (API, models, services, auth)
+alwaysApply: true
+---
+
+# EAM-AI Backend Conventions
+
+## Stack & layout
+
+- **FastAPI** + **async SQLAlchemy** (`aiomysql`). Session via `Depends(get_async_session)`.
+- Config from `app.config.settings.settings` (Pydantic `BaseSettings`, `.env`). Never hardcode secrets or URLs.
+- Constants (roles, statuses) live in `app.config.constants` — reuse, don't duplicate strings.
+
+## API structure
+
+- Routes under `app/api/v1/{role}/` where role is `engineer`, `supervisor`, `purchaser`, `leader`, or `common`.
+- Each module extends `BaseRouter`, implements `_register_routes()`, and returns `self.router`.
+- Role routers aggregate with `include_router(..., prefix="/...")`; root prefix is `/api/v1`.
+- Every endpoint returns `BaseResponse` (`code`, `msg`, `data`). Use `response_model=BaseResponse[...]` in route decorators.
+- Request/response DTOs in `app/schemas/`; small inline `BaseModel` classes are OK for single-route payloads.
+- Protect routes with `Depends(allow_engineer | allow_supervisor | allow_purchaser | allow_leader | require_admin)` from `app.core.security`.
+
+```python
+# ✅ Route registration pattern
+class FooRouter(BaseRouter):
+    def _register_routes(self):
+        self.router.post("/action", response_model=BaseResponse, tags=["主管-模块"])(self.action)
+        return self.router
+
+    async def action(self, req: FooRequest, _=Depends(allow_supervisor)):
+        return BaseResponse(data=result)
+```
+
+## Database models
+
+- Inherit `Base` + `TimestampMixin` from `app.models.base` (provides `id`, `created_at`, `updated_at`).
+- Use **Chinese Python attribute names** with **Chinese DB table/column names**: `字段 = Column("列名", ...)`；`id`/`created_at`/`updated_at` 保持英文。
+- Business logic belongs in services, not route handlers — keep handlers thin.
+
+## AI & integrations
+
+- AI logic in `app/services/ai_services/`. Call shared clients (`ai_client`, `milvus_client`, `minio_client`) from `app/utils/`.
+- Read model names and endpoints from `settings` (`LLM_STRATEGY`, `EMBEDDING_MODEL`, etc.).
+
+## When adding features
+
+1. Model → schema → service (if non-trivial) → `*Router` → role `router.py` → verify auth role.
+2. Match existing naming, tags (Chinese module labels), and error responses (`BaseResponse(code=4xx, msg="...")`).
+3. Minimize scope — no unrelated refactors or new abstractions for one-off needs.
+
+当要生成前端或者前端优化，调用这个D:\EAM-AI\.cursor\skills\frontend-design
+当要生成项目架构了，调用这个D:\EAM-AI\.cursor\skills\project-workflow-analysis-blueprint-generator\SKILL.md
+
+### 开发守则 ###
+- 严格用最少的代码完成当前任务。
+- 不进行大规模改动，不主动重构。
+- 禁止修改与当前任务无关的文件和功能。
+
+# 语言要求
+- 所有对话和注释都必须使用中文。
+- 如果代码中需要字符串常量，也请使用中文。
+
+commit前自动Review每次提交代码前，AI自动检查magic number，资源释放，边界条件等10+项。
+显示类型声明 禁止var/final不写类型。
