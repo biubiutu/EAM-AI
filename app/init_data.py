@@ -281,6 +281,8 @@ async def init_price_comparisons(session: AsyncSession, parts: list, users: list
 
 
 async def init_contracts(session: AsyncSession, suppliers: list):
+    from app.services.contract_storage import sync_contracts_to_minio
+
     contracts = [
         Contract(合同编号="CT-2024-001", 供应商ID=suppliers[0].id, 合同标题="2024年机床轴承采购合同", 文件路径="minio://contracts/CT001.pdf", AI审查状态="approved", AI审查结果=json.dumps({"risk_level": "low", "issues": []}), 签订日期=datetime(2024, 1, 15).date(), 到期日期=datetime(2024, 12, 31).date()),
         Contract(合同编号="CT-2024-002", 供应商ID=suppliers[3].id, 合同标题="ABB机器人年度维保合同", 文件路径="minio://contracts/CT002.pdf", AI审查状态="approved", AI审查结果=json.dumps({"risk_level": "low", "issues": []}), 签订日期=datetime(2024, 2, 1).date(), 到期日期=datetime(2025, 1, 31).date()),
@@ -289,7 +291,8 @@ async def init_contracts(session: AsyncSession, suppliers: list):
     for c in contracts:
         session.add(c)
     await session.flush()
-    print(f"[OK] 插入 {len(contracts)} 条合同")
+    stats = sync_contracts_to_minio(contracts)
+    print(f"[OK] 插入 {len(contracts)} 条合同，MinIO 同步 {stats['已同步']} 个文件")
 
 
 async def init_supplier_risk_alerts(session: AsyncSession, suppliers: list):

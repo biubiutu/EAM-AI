@@ -25,6 +25,11 @@ paddlepaddle==3.0.0
 pdfplumber==0.11.0
 openpyxl==3.1.5
 
+# 对象存储
+minio==7.2.20
+argon2-cffi
+pycryptodome
+
 # 工具库
 python-multipart==0.0.9
 python-jose[cryptography]==3.3.0

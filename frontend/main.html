@@ -921,7 +921,7 @@ window.doEstimateCost=async function(){
     html+=`<div style="font-size:14px;line-height:1.8">`;
     html+=`<div>📍 维修地点：<b>${loc}</b></div>`;
     html+=`<div>📏 估算距离：<b>${dist||0} km</b></div>`;
-    html+=`<div>🚗 交通费用：<b>¥${r.data.交通费用??r.data.transport_cost||0}</b></div>`;
+    html+=`<div>🚗 交通费用：<b>¥${(r.data.交通费用??r.data.transport_cost)||0}</b></div>`;
     const other=r.data.其他费用??r.data.other_costs;
     if(other)html+=`<div>📋 其他费用：${other}</div>`;
     html+=`<div>💵 <span style="color:#fa8c16;font-size:16px">总成本：¥${cost||0}</span></div>`;
@@ -1402,25 +1402,52 @@ window.doContractReview=async function(){
   const r=await apiPost('/api/v1/purchaser/contract/review',{合同文本:content,合同类型:'purchase'});
   showResult(el,r,true);
 };
-// 合同查询 - 从 MinIO 列表查询
+function normalizeContractList(data){
+  if(!data)return{list:[],matched:0,total:0,orphans:[],legacy:false};
+  if(Array.isArray(data.列表)){
+    return{list:data.列表,matched:data.已匹配数??0,total:data.总数??data.列表.length,orphans:data.MinIO孤立文件||[],legacy:false};
+  }
+  const files=data.文件列表||data.files||[];
+  return{
+    list:files.map(f=>({
+      合同编号:f.合同编号||'-',
+      合同标题:f.合同标题||f.文件名||f.filename||'-',
+      供应商名称:f.供应商名称||'-',
+      签订日期:f.签订日期||'-',
+      到期日期:f.到期日期||'-',
+      AI审查状态:f.AI审查状态||'-',
+      对象名:f.对象名||f.object_name||'',
+      文件已匹配:true
+    })),
+    matched:files.length,total:data.总数??files.length,orphans:[],legacy:!!files.length
+  };
+}
+// 合同查询 - 数据库记录与 MinIO 按文件路径精准匹配
 window.loadContractList=async function(){
   const el=document.getElementById('contract_list');if(!el)return;
   el.innerHTML='<div class="loading">加载中...</div>';
   const r=await apiGet('/api/v1/purchaser/contract/list');
-  if(r.code===200&&r.data){
-    const files=r.data.文件列表||r.data.files||[];
-    if(!files.length){el.innerHTML='<div class="empty-state">暂无合同文件</div>';return}
-    let html='<div class="table-wrapper"><table class="data-table"><thead><tr><th>文件名</th><th>文件大小</th><th>上传时间</th><th>操作</th></tr></thead><tbody>';
-    for(const f of files){
-      const size=f.大小??f.size??0;
-      const sizeStr=size>1024?Math.round(size/1024)+'KB':size+'B';
-      const obj=f.对象名||f.object_name||'';
-      const name=f.文件名||f.filename||'-';
-      const modified=f.修改时间||f.last_modified||'-';
-      html+=`<tr><td>${name}</td><td>${sizeStr}</td><td>${modified}</td>
-        <td><button class="btn sm" onclick="downloadContract('${obj}')">下载</button></td></tr>`;
+  if(r.code!==200){showResult(el,r,true);return}
+  if(r.data){
+    const norm=normalizeContractList(r.data);
+    const list=norm.list;
+    const matched=norm.matched;
+    const total=norm.total;
+    if(!list.length){el.innerHTML='<div class="empty-state">暂无合同记录（请确认已执行 init_data 与 sync_contract_minio）</div>';return}
+    let html=`<div style="margin-bottom:10px;font-size:13px;color:#666">共 ${total} 份合同，MinIO 已匹配 ${matched} 份${norm.legacy?' <span style="color:#fa8c16">（旧版接口，请重启后端以显示完整合同信息）</span>':''}</div>`;
+    html+='<div class="table-wrapper"><table class="data-table"><thead><tr><th>合同编号</th><th>合同标题</th><th>供应商</th><th>签订日期</th><th>到期日期</th><th>审查状态</th><th>文件匹配</th><th>操作</th></tr></thead><tbody>';
+    for(const c of list){
+      const obj=c.对象名||'';
+      const ok=c.文件已匹配;
+      const badge=ok?'<span class="status-badge green">已匹配</span>':'<span class="status-badge red">未匹配</span>';
+      const btn=ok?`<button class="btn sm" onclick="downloadContract('${obj}')">下载</button>`:'<span style="color:#999;font-size:12px">无文件</span>';
+      html+=`<tr><td>${escapeHtml(c.合同编号||'-')}</td><td>${escapeHtml(c.合同标题||'-')}</td><td>${escapeHtml(c.供应商名称||'-')}</td><td>${c.签订日期||'-'}</td><td>${c.到期日期||'-'}</td><td>${c.AI审查状态||'-'}</td><td>${badge}</td><td>${btn}</td></tr>`;
     }
     html+='</tbody></table></div>';
+    const orphans=norm.orphans;
+    if(orphans.length){
+      html+=`<div style="margin-top:12px;font-size:13px;color:#fa8c16">⚠️ MinIO 中有 ${orphans.length} 个文件未关联到数据库记录</div>`;
+    }
     el.innerHTML=html;
   } else showResult(el,r,true);
 };
@@ -1596,7 +1623,7 @@ const PAGE_RENDER = {
     setTimeout(()=>{window.updateAccumDisplay();window.loadPriceHistory();window.renderPcfFileList();},100);
   },
       '合同审查': function(c){c.innerHTML=`<h2>合同审查</h2><div class="desc">文本审查或上传文件审查，合同文件自动存入 MinIO</div><div class="tab-bar"><div class="tab-item active" data-tab="ct_text" onclick="switchContractTab('ct_text')">文本审查</div><div class="tab-item" data-tab="ct_file" onclick="switchContractTab('ct_file')">上传文件</div></div><div id="ct_text"><div class="card"><div class="card-title">合同文本审查</div><div class="form-group"><label>合同名称</label><input id="ct_name" placeholder="设备采购合同"></div><div class="form-group"><label>合同内容</label><textarea id="ct_content" style="min-height:150px"></textarea></div><button class="btn" onclick="doContractReview()">审查</button><div id="ct_result" class="result-box" style="display:none"></div></div></div><div id="ct_file" style="display:none"></div>`;setTimeout(()=>{const fc=document.getElementById('ct_file');if(fc)renderFileUpload(fc,'/api/v1/purchaser/contract/review-file',[{key:'contract_name',label:'合同名称',placeholder:'设备采购合同'}],{title:'上传合同文件',accept:'.pdf,.doc,.docx,.txt',acceptText:'支持PDF/Word/TXT'});},100);},
-  '合同查询': function(c){c.innerHTML=`<h2>合同查询</h2><div class="desc">查询已存储在 MinIO 中的合同文件，可下载查看</div><div class="card"><button class="btn" onclick="loadContractList()">📋 刷新合同列表</button><div id="contract_list" style="margin-top:12px"><div class="loading">正在加载合同列表...</div></div></div>`;setTimeout(loadContractList,100);},
+  '合同查询': function(c){c.innerHTML=`<h2>合同查询</h2><div class="desc">从数据库查询合同记录，并按文件路径与 MinIO 桶内文件精准匹配</div><div class="card"><button class="btn" onclick="loadContractList()">📋 刷新合同列表</button><div id="contract_list" style="margin-top:12px"><div class="loading">正在加载合同列表...</div></div></div>`;setTimeout(loadContractList,100);},
   '供应商风险评估': function(c){c.innerHTML=`<h2>供应商风险评估</h2><div class="desc">以文本展示评估结果</div><div class="card"><div class="form-group"><label>供应商ID</label><input id="risk_supplier" placeholder="SUP-001"></div><div class="form-group"><label>供应商名称</label><input id="risk_name" placeholder="XX机电公司"></div><button class="btn" onclick="doRiskEval()">评估风险</button><div id="risk_result" class="result-box" style="display:none"></div></div>`;},
   '供应商推荐': function(c){c.innerHTML=`<h2>供应商推荐</h2><div class="desc">以文本展示推荐结果</div><div class="card"><div class="form-group"><label>备件名称</label><input id="src_part" placeholder="轴承SKF-6205"></div><div class="form-group"><label>采购要求</label><textarea id="src_req" placeholder="要求质量好、交期快"></textarea></div><button class="btn" onclick="doSourcing()">推荐</button><div id="src_result" class="result-box" style="display:none"></div></div>`;},
   '价格趋势': function(c){c.innerHTML=`<h2>价格趋势分析</h2><div class="card"><div class="form-group"><label>商品名称</label><input id="trend_commodity" placeholder="轴承SKF-6205"></div><button class="btn" onclick="doPriceTrend()">分析趋势</button><div id="trend_result" class="result-box" style="display:none"></div></div>`;},
@@ -1724,16 +1751,21 @@ async function bootstrap(){
     return;
   }
   try{
+    const controller=new AbortController();
+    const timer=setTimeout(()=>controller.abort(),10000);
     const res=await fetch(API_BASE+'/api/v1/common/auth/me',{
-      headers:{'Authorization':'Bearer '+token}
+      headers:{'Authorization':'Bearer '+token},
+      signal:controller.signal
     });
+    clearTimeout(timer);
     const data=await res.json();
-    if(res.ok&&data.code===200&&data.data&&data.data.角色){
+    const role=data.data?.角色||data.data?.role;
+    if(res.ok&&data.code===200&&data.data&&role){
       saveUser({
-        用户名:data.data.用户名,
-        真实姓名:data.data.真实姓名||data.data.用户名,
-        角色:data.data.角色,
-        用户ID:data.data.用户ID
+        用户名:data.data.用户名||data.data.username,
+        真实姓名:data.data.真实姓名||data.data.real_name||data.data.用户名||data.data.username,
+        角色:role,
+        用户ID:data.data.用户ID||data.data.user_id
       });
       renderMain();
       return;
