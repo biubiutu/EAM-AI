@@ -9,9 +9,10 @@ from app.services.ai_services.lcc_service import lcc_service
 
 
 class LCCRequest(BaseModel):
-    equipment_id: int
-    equipment: dict[str, Any]
-    cost_data: dict[str, Any]
+    equipment_id: int | str
+    equipment: dict[str, Any] = None
+    cost_data: dict[str, Any] = None
+    params: dict[str, Any] = None
 
 
 class LCCRouter(BaseRouter):
@@ -28,5 +29,7 @@ class LCCRouter(BaseRouter):
         return self.router
 
     async def analyze_lcc(self, request: LCCRequest, _=Depends(allow_leader)):
-        result = await lcc_service.analyze_lcc(request.equipment, request.cost_data)
+        equipment = request.equipment or {"id": request.equipment_id}
+        cost_data = request.cost_data or request.params or {}
+        result = await lcc_service.analyze_lcc(equipment, cost_data)
         return BaseResponse(data=result)

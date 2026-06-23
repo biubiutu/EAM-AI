@@ -5,6 +5,7 @@ from app.models.work_order import WorkOrder, InspectionRecord, MaintenancePlan
 from app.models.spare_part import SparePart, Warehouse, InventoryRecord, Requisition, TransferOrder, StagnantAlert
 from app.models.purchase import Supplier, SupplierCategory, Quotation, PriceComparison, Contract, SupplierRiskAlert, CommodityPrice, SourcingRecommendation
 from app.models.approval import ApprovalRecord, CostAnalysis
+from app.models.dispatch import EngineerDispatch
 
 __all__ = [
     "Base",
@@ -33,4 +34,5 @@ __all__ = [
     "SourcingRecommendation",
     "ApprovalRecord",
     "CostAnalysis",
+    "EngineerDispatch",
 ]

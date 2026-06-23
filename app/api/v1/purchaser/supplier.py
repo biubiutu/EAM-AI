@@ -1,5 +1,5 @@
 from fastapi import Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, AliasChoices
 
 from app.core.base_router import BaseRouter
 from app.schemas.common import BaseResponse
@@ -8,8 +8,9 @@ from app.services.ai_services.supplier_risk_agent import supplier_risk_agent
 
 
 class SupplierRiskRequest(BaseModel):
-    supplier_id: int
-    supplier: dict
+    supplier_id: int | str = Field(default=0, validation_alias=AliasChoices("供应商ID", "supplier_id"))
+    supplier: dict = None
+    supplier_name: str = Field(default="", validation_alias=AliasChoices("供应商名称", "supplier_name"))
 
 
 class SupplierRouter(BaseRouter):
@@ -42,16 +43,21 @@ class SupplierRouter(BaseRouter):
         return self.router
 
     async def check_risk(self, request: SupplierRiskRequest, _=Depends(allow_purchaser)):
-        alerts = await supplier_risk_agent.monitor_supplier_risks(request.supplier)
+        supplier = request.supplier or {
+            "id": request.supplier_id,
+            "name": request.supplier_name,
+        }
+        alerts = await supplier_risk_agent.monitor_supplier_risks(supplier)
         assessment = {}
         if alerts:
-            assessment = await supplier_risk_agent.assess_risks(alerts, request.supplier)
+            assessment = await supplier_risk_agent.assess_risks(alerts, supplier)
         return BaseResponse(data={"alerts": alerts, "assessment": assessment})
 
     async def recommend_suppliers(self, request: dict, _=Depends(allow_purchaser)):
         from app.services.ai_services.sourcing_agent import sourcing_agent
+        specification = request.get("specification") or request.get("spare_part_name", "")
         result = await sourcing_agent.recommend_suppliers(
-            request.get("specification", ""),
+            specification,
             request.get("suppliers"),
         )
         return BaseResponse(data=result)
@@ -60,7 +66,7 @@ class SupplierRouter(BaseRouter):
         from app.services.ai_services.price_trend_agent import price_trend_agent
         result = await price_trend_agent.analyze_price_trend(
             request.get("spare_part_id", 0),
-            request.get("spare_part_name", ""),
+            request.get("spare_part_name") or request.get("commodity_name") or request.get("商品名称", ""),
             request.get("raw_materials"),
             request.get("commodity_prices"),
         )

@@ -1,5 +1,5 @@
 from fastapi import Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, AliasChoices
 
 from app.core.base_router import BaseRouter
 from app.schemas.common import BaseResponse
@@ -8,9 +8,10 @@ from app.services.ai_services.diagnosis_service import diagnosis_service
 
 
 class DiagnosisRequest(BaseModel):
-    fault_desc: str
-    equipment_id: int = None
-    equipment_model: str = ""
+    fault_desc: str = Field(..., validation_alias=AliasChoices("故障描述", "fault_desc"))
+    equipment_id: int | str | None = Field(default=None, validation_alias=AliasChoices("设备ID", "equipment_id"))
+    equipment_model: str = Field(default="", validation_alias=AliasChoices("设备型号", "equipment_model"))
+    image_urls: list[str] = []
 
 
 class DiagnosisRouter(BaseRouter):

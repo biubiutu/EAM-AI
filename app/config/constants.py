@@ -7,6 +7,21 @@ class UserRole:
     GUEST = "guest"
 
 
+class EquipmentStatus:
+    IN_USE = "in_use"              # 正常使用
+    IN_STORAGE = "in_storage"      # 入库待使用
+    PENDING_REPAIR = "pending_repair"  # 待维修
+    UNDER_REPAIR = "under_repair"  # 维修中
+    SCRAPPED = "scrapped"          # 已报废
+
+
+class EngineerLevel:
+    JUNIOR = "junior"              # 初级
+    INTERMEDIATE = "intermediate"  # 中级
+    SENIOR = "senior"              # 高级
+    EXPERT = "expert"              # 专家
+
+
 class RequisitionStatus:
     PENDING = "pending"
     APPROVED = "approved"

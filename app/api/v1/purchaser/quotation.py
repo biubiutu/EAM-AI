@@ -236,7 +236,9 @@ class QuotationRouter(BaseRouter):
         "tax_included": true
     }
 ]"""
-                text = await ai_client.chat_with_image(prompt, content)
+                text = await ai_client.chat_with_image(
+                    prompt, content, mime_type=ai_client.get_image_mime_type(file.filename)
+                )
                 try:
                     parsed = json.loads(_extract_json(text))
                     raw_items = parsed if isinstance(parsed, list) else parsed.get("items", [])

@@ -66,7 +66,12 @@ class ContractRouter(BaseRouter):
         )
         return BaseResponse(data=result)
 
-    async def review_contract_file(self, file: UploadFile = File(...), _=Depends(allow_purchaser)):
+    async def review_contract_file(
+        self, files: list[UploadFile] = File(...), _=Depends(allow_purchaser)
+    ):
+        if not files:
+            return BaseResponse(code=400, msg="请至少上传一个文件")
+        file = files[0]
         content = await file.read()
         object_name = f"{CONTRACT_MINIO_PREFIX}{file.filename}"
 

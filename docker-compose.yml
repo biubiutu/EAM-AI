@@ -76,7 +76,7 @@ services:
     environment:
       MILVUS_URL: milvus:19530
     ports:
-      - "8000:3000"
+      - "3000:3000"
     depends_on:
       - milvus
 

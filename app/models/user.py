@@ -2,16 +2,18 @@ from sqlalchemy import Column, String, Integer, Boolean
 from app.models.base import Base, TimestampMixin
 
 
-class User(Base, TimestampMixin):
-    __tablename__ = "用户"
-
-    用户名 = Column("用户名", String(50), unique=True, nullable=False, comment="用户名")
-    密码哈希 = Column("密码哈希", String(255), nullable=False, comment="密码哈希")
-    真实姓名 = Column("真实姓名", String(50), comment="真实姓名")
-    邮箱 = Column("邮箱", String(100), comment="邮箱")
-    手机号 = Column("手机号", String(20), comment="手机号")
-    角色 = Column("角色", String(20), default="engineer", comment="角色")
-    是否激活 = Column("是否激活", Boolean, default=True, comment="是否激活")
+class User(Base, TimestampMixin):
+    __tablename__ = "用户"
+
+    用户名 = Column("用户名", String(50), unique=True, nullable=False, comment="用户名")
+    密码哈希 = Column("密码哈希", String(255), nullable=False, comment="密码哈希")
+    真实姓名 = Column("真实姓名", String(50), comment="真实姓名")
+    邮箱 = Column("邮箱", String(100), comment="邮箱")
+    手机号 = Column("手机号", String(20), comment="手机号")
+    角色 = Column("角色", String(20), default="engineer", comment="角色")
+    是否激活 = Column("是否激活", Boolean, default=True, comment="是否激活")
+    工程师等级 = Column("工程师等级", String(20), default="junior", comment="工程师等级(junior/intermediate/senior/expert)")
+    经验值 = Column("经验值", Integer, default=0, comment="经验值")
 
 
 class SkillRecord(Base, TimestampMixin):

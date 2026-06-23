@@ -1,5 +1,5 @@
 from fastapi import Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, AliasChoices
 from typing import Any
 
 from app.core.base_router import BaseRouter
@@ -9,8 +9,8 @@ from app.services.ai_services.approval_agent import approval_agent
 
 
 class ApprovalReviewRequest(BaseModel):
-    business_type: str
-    business_data: dict[str, Any]
+    business_type: str = Field(..., validation_alias=AliasChoices("业务类型", "business_type"))
+    business_data: dict[str, Any] = Field(..., validation_alias=AliasChoices("业务数据", "business_data"))
 
 
 class ApprovalRouter(BaseRouter):

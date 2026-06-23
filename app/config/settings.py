@@ -1,4 +1,3 @@
-import os
 from typing import Optional
 from pydantic_settings import BaseSettings
 
@@ -6,30 +5,30 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
     APP_NAME: str = "AI-EAM"
     APP_VERSION: str = "1.0.0"
-    DEBUG: bool = True
+    DEBUG: bool = False
     LOG_LEVEL: str = "INFO"
     API_HOST: str = "0.0.0.0"
     API_PORT: int = 8000
+    CORS_ORIGINS: str = "http://localhost:8000,http://127.0.0.1:8000"
 
-    OLLAMA_BASE_URL: str = "http://127.0.0.1:11434"
-    LLM_MODEL: str = "qwen3.5:2b"
-    EMBEDDING_MODEL: str = "nomic-embed-text:latest"
-    LLM_STRATEGY: str = "ollama"
-    EMBEDDING_STRATEGY: str = "ollama"
-    LLM_ENV: str = "ollama"
+    EMBEDDING_DIM: int = 4096
+    LLM_STRATEGY: str = "deepseek-flash-v4"
+    EMBEDDING_STRATEGY: str = "siliconflow"
+    LLM_ENV: str = "deepseek-flash-v4"
 
-    SILICON_FLOW_API_KEY: str = "sk-cmboxviixeoqsjpfqqpcwuiwdmyjcgvcdfbjmofwknutltap"
+    SILICON_FLOW_API_KEY: Optional[str] = None
     SILICON_FLOW_BASE_URL: str = "https://api.siliconflow.cn/v1"
     SILICON_FLOW_LLM_URL: str = "https://api.siliconflow.cn/v1/chat/completions"
     SILICON_FLOW_EMBEDDING_URL: str = "https://api.siliconflow.cn/v1/embeddings"
     SILICON_FLOW_LLM_MODEL: str = "deepseek-ai/DeepSeek-R1"
-    SILICON_FLOW_EMBEDDING_MODEL: str = "BAAI/bge-large-zh-v1.5"
+    SILICON_FLOW_EMBEDDING_MODEL: str = "Qwen/Qwen3-VL-Embedding-8B"
+    SILICON_FLOW_VISION_MODEL: str = "Qwen/Qwen3-Omni-30B-A3B-Instruct"
 
-    API_KEY: Optional[str] = "sk-04e55439d22d49d3bb003b164fba4771"
-    AI_API_KEY: Optional[str] = "sk-04e55439d22d49d3bb003b164fba4771"
+    API_KEY: Optional[str] = None
+    AI_API_KEY: Optional[str] = None
     AI_BASE_URL: str = "https://api.deepseek.com/v1"
     AI_MODEL: str = "deepseek-v4-flash"
-    DEEPSEEK_API_KEY: Optional[str] = "sk-04e55439d22d49d3bb003b164fba4771"
+    DEEPSEEK_API_KEY: Optional[str] = None
     BASE_URL: str = "https://api.deepseek.com/v1"
     DEEPSEEK_MODEL: str = "deepseek-v4-flash"
     DEEPSEEK_LLM_URL: str = "https://api.deepseek.com/v1/chat/completions"
@@ -41,7 +40,7 @@ class Settings(BaseSettings):
     DIFY_TIME_OUT: int = 600
 
     REDIS_HOST: str = "127.0.0.1"
-    REDIS_PORT: int = 5379
+    REDIS_PORT: int = 6379
     REDIS_DB: int = 0
     REDIS_URL: str = "redis://127.0.0.1:6379/0"
     REDIS_MAX_CONNECTIONS: int = 1000
@@ -49,14 +48,14 @@ class Settings(BaseSettings):
     REDIS_SOCKET_CONNECT_TIMEOUT: int = 5
 
     MINIO_ENDPOINT: str = "127.0.0.1:9100"
-    MINIO_ACCESS_KEY: str = "minioadmin"
-    MINIO_SECRET_KEY: str = "minioadmin"
+    MINIO_ACCESS_KEY: str = "change-me"
+    MINIO_SECRET_KEY: str = "change-me"
     MINIO_BUCKET: str = "vanna-training-data"
     MINIO_SECURE: bool = False
     KB_BUCKET_NAME: str = "knowledge-base"
 
     MYSQL_USER: str = "root"
-    MYSQL_PASSWORD: str = "123456"
+    MYSQL_PASSWORD: str = "change-me"
     MYSQL_HOST: str = "127.0.0.1"
     MYSQL_PORT: int = 3306
     MYSQL_DB: str = "eam_ai"
@@ -70,17 +69,18 @@ class Settings(BaseSettings):
     MILVUS_DEFAULT_DB: str = "default"
     MILVUS_COLLECTION_KNOWLEDGE: str = "equipment_knowledge"
     MILVUS_COLLECTION_CASES: str = "fault_cases"
+    MILVUS_COLLECTION_MULTIMODAL: str = "multimodal_knowledge"
 
     NEO4J_URI: str = "bolt://localhost:7687"
     NEO4J_USERNAME: str = "neo4j"
-    NEO4J_PASSWORD: str = "San20260"
+    NEO4J_PASSWORD: str = "change-me"
 
     JIEBA_USER_DICT: str = "./jieba_user_dict.txt"
     JIEBA_STOPWORDS_PATH: str = "jieba_stopwords.txt"
 
     WHISPER_MODEL_SIZE: str = "base"
 
-    JWT_SECRET_KEY: str = "eam-ai-secret-key-change-in-production"
+    JWT_SECRET_KEY: str = "change-me-in-env"
     JWT_ALGORITHM: str = "HS256"
     JWT_EXPIRE_MINUTES: int = 1440
 

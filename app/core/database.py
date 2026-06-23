@@ -4,10 +4,11 @@ from app.config.settings import settings
 engine = create_async_engine(
     settings.get_database_url(),
     echo=settings.DEBUG,
-    pool_size=20,
-    max_overflow=10,
-    pool_pre_ping=True,
+    pool_size=10,
+    max_overflow=5,
     pool_recycle=3600,
+    pool_pre_ping=False,
+    connect_args={"connect_timeout": 5},
 )
 
 async_session_factory = async_sessionmaker(

@@ -8,9 +8,10 @@ from app.services.ai_services.transfer_agent import transfer_agent
 
 
 class TransferEvaluateRequest(BaseModel):
-    spare_part_id: int
-    from_warehouse: dict
-    to_warehouse: dict
+    spare_part_id: int | str
+    spare_part_name: str = ""
+    from_warehouse: dict | str
+    to_warehouse: dict | str
     quantity: int
     logistics_data: dict = None
     waiting_cost: float = 0
@@ -45,10 +46,20 @@ class SharingRouter(BaseRouter):
         return self.router
 
     async def evaluate_transfer(self, request: TransferEvaluateRequest, _=Depends(allow_supervisor)):
+        from_warehouse = (
+            request.from_warehouse
+            if isinstance(request.from_warehouse, dict)
+            else {"name": request.from_warehouse}
+        )
+        to_warehouse = (
+            request.to_warehouse
+            if isinstance(request.to_warehouse, dict)
+            else {"name": request.to_warehouse}
+        )
         result = await transfer_agent.evaluate_transfer(
             spare_part_id=request.spare_part_id,
-            from_warehouse=request.from_warehouse,
-            to_warehouse=request.to_warehouse,
+            from_warehouse=from_warehouse,
+            to_warehouse=to_warehouse,
             quantity=request.quantity,
             logistics_data=request.logistics_data,
             waiting_cost=request.waiting_cost,

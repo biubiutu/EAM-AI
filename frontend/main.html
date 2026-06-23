@@ -11,6 +11,13 @@ body{background:#f0f2f5;overflow:hidden}
 .login-card{background:#fff;padding:40px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);width:400px;max-width:90vw}
 .login-card h2{text-align:center;margin-bottom:8px;color:#1a1a2e;font-size:24px}
 .login-card .sub{text-align:center;color:#999;margin-bottom:24px;font-size:13px}
+.quick-login{margin-top:20px;padding-top:16px;border-top:1px solid #e8e8e8}
+.quick-title{font-size:12px;color:#999;margin-bottom:10px;text-align:center}
+.quick-users{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.quick-user{display:flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid #e8e8e8;border-radius:20px;cursor:pointer;transition:.2s;font-size:12px}
+.quick-user:hover{border-color:#1890ff;background:#e6f7ff}
+.quick-user .avatar{width:24px;height:24px;border-radius:50%;background:#1890ff;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600}
+.quick-user .name{color:#333}
 .form-group{margin-bottom:16px}
 .form-group label{display:block;margin-bottom:4px;color:#333;font-size:13px;font-weight:500}
 .form-group input,.form-group select{width:100%;padding:10px 12px;border:1px solid #d9d9d9;border-radius:8px;font-size:14px;transition:.2s}
@@ -331,10 +338,10 @@ function renderCompareResult(container,resp){
 // ========== 角色配置 ==========
 const ROLE_CONFIG = {
   admin: {label:'管理员',color:'#e74c3c',pages:[
-    {group:'系统管理',icon:'⚙️',items:[{id:'用户管理',name:'用户角色权限',icon:'👥'}]},
+    {group:'系统管理',icon:'⚙️',items:[{id:'用户管理',name:'用户角色权限',icon:'👥'},{id:'黄金问答库',name:'黄金问答库',icon:'🏆'},{id:'审计日志',name:'审计日志',icon:'📋'}]},
     {group:'数据与决策',icon:'📊',items:[{id:'数据看板',name:'数据看板',icon:'📊'},{id:'数据洞察',name:'数据洞察',icon:'🔍'},{id:'LCC分析',name:'LCC分析',icon:'💰'},{id:'审批决策辅助',name:'审批决策',icon:'✅'}]},
-    {group:'故障诊断',icon:'🔧',items:[{id:'AI故障诊断',name:'AI故障诊断',icon:'🔧'},{id:'知识库搜索',name:'知识库搜索',icon:'📚'},{id:'故障案例',name:'故障案例',icon:'📋'}]},
-    {group:'维修作业',icon:'🛠️',items:[{id:'上传维修手册',name:'上传维修手册',icon:'📖'},{id:'维修作业录入',name:'维修作业录入',icon:'🔧'}]},
+    {group:'故障诊断',icon:'🔧',items:[{id:'AI故障诊断',name:'AI故障诊断',icon:'🔧'},{id:'智能搜索',name:'智能搜索',icon:'🔍'}]},
+    {group:'维修作业',icon:'🛠️',items:[{id:'知识库管理',name:'知识库管理',icon:'📚'},{id:'维修作业录入',name:'维修作业录入',icon:'🔧'}]},
     {group:'技能与监控',icon:'📡',items:[{id:'技能考核',name:'技能考核',icon:'📝'},{id:'IoT分析',name:'IoT分析',icon:'📡'}]},
     {group:'备件管理',icon:'📦',items:[{id:'BOM检查',name:'BOM检查',icon:'📋'},{id:'申购分析',name:'申购分析',icon:'📦'},{id:'调拨评估',name:'调拨评估',icon:'🔄'}]},
     {group:'人员调度',icon:'🚀',items:[{id:'调派管理',name:'工程师调派',icon:'🚀'}]},
@@ -343,12 +350,15 @@ const ROLE_CONFIG = {
     {group:'文件',icon:'📁',items:[{id:'文件上传',name:'文件上传',icon:'📁'}]}
   ]},
   engineer: {label:'工程师',color:'#3498db',pages:[
-    {group:'故障诊断',icon:'🔧',items:[{id:'AI故障诊断',name:'AI故障诊断',icon:'🔧'},{id:'知识库搜索',name:'知识库搜索',icon:'📚'},{id:'故障案例',name:'故障案例',icon:'📋'}]},
-    {group:'维修作业',icon:'🛠️',items:[{id:'上传维修手册',name:'上传维修手册',icon:'📖'},{id:'维修作业录入',name:'维修作业录入',icon:'🔧'}]},
+    {group:'故障诊断',icon:'🔧',items:[{id:'AI故障诊断',name:'AI故障诊断',icon:'🔧'},{id:'智能搜索',name:'智能搜索',icon:'🔍'}]},
+    {group:'维修作业',icon:'🛠️',items:[{id:'知识库管理',name:'知识库管理',icon:'📚'},{id:'维修作业录入',name:'维修作业录入',icon:'🔧'}]},
     {group:'技能与监控',icon:'📡',items:[{id:'技能考核',name:'技能考核',icon:'📝'},{id:'IoT分析',name:'IoT分析',icon:'📡'}]},
+    {group:'文档管理',icon:'📄',items:[{id:'文档解析',name:'文档解析',icon:'🔍'}]},
     {group:'文件',icon:'📁',items:[{id:'文件上传',name:'文件上传',icon:'📁'}]}
   ]},
   supervisor: {label:'主管',color:'#2ecc71',pages:[
+    {group:'设备管理',icon:'🏭',items:[{id:'设备台账',name:'设备台账',icon:'📋'}]},
+    {group:'知识管理',icon:'📚',items:[{id:'黄金问答库',name:'黄金问答库',icon:'🏆'}]},
     {group:'备件管理',icon:'📦',items:[{id:'BOM检查',name:'BOM检查',icon:'📋'},{id:'申购分析',name:'申购分析',icon:'📦'},{id:'调拨评估',name:'调拨评估',icon:'🔄'}]},
     {group:'人员调度',icon:'🚀',items:[{id:'调派管理',name:'工程师调派',icon:'🚀'}]},
     {group:'文件',icon:'📁',items:[{id:'文件上传',name:'文件上传',icon:'📁'}]}
@@ -360,7 +370,7 @@ const ROLE_CONFIG = {
   ]},
   leader: {label:'领导',color:'#9b59b6',pages:[
     {group:'决策审批',icon:'✅',items:[{id:'审批决策辅助',name:'审批决策辅助',icon:'✅'}]},
-    {group:'数据洞察',icon:'📊',items:[{id:'数据看板',name:'数据看板',icon:'📊'},{id:'数据洞察',name:'数据洞察',icon:'🔍'},{id:'LCC分析',name:'LCC分析',icon:'💰'}]},
+    {group:'数据洞察',icon:'📊',items:[{id:'数据看板',name:'数据看板',icon:'📊'},{id:'数据洞察',name:'数据洞察',icon:'🔍'},{id:'Text2SQL查询',name:'Text2SQL查询',icon:'🗄️'},{id:'LCC分析',name:'LCC分析',icon:'💰'}]},
     {group:'文件',icon:'📁',items:[{id:'文件上传',name:'文件上传',icon:'📁'}]}
   ]},
   guest: {label:'访客',color:'#95a5a6',pages:[
@@ -495,15 +505,15 @@ async function loadUsers(){
   const roles=[{v:'admin',l:'管理员'},{v:'engineer',l:'工程师'},{v:'supervisor',l:'主管'},{v:'purchaser',l:'采购员'},{v:'leader',l:'领导'},{v:'guest',l:'访客'}];
   let html='<div class="table-wrapper"><table class="data-table"><thead><tr><th>ID</th><th>用户名</th><th>姓名</th><th>邮箱</th><th>当前角色</th><th>操作</th></tr></thead><tbody>';
   for(const u of r.data){
-    const opt=roles.map(rr=>`<option value="${rr.v}"${u.角色===rr.v?' selected':''}>${rr.l}</option>`).join('');
-    html+=`<tr><td>${escapeHtml(String(u.id))}</td><td>${escapeHtml(u.用户名||'')}</td><td>${escapeHtml(u.真实姓名||'-')}</td><td>${escapeHtml(u.邮箱||'-')}</td><td><span class="status-badge blue">${escapeHtml(roles.find(rr=>rr.v===u.角色)?.l||u.角色)}</span></td><td><select id="role_${u.id}" style="padding:4px 8px;border-radius:4px;font-size:12px">${opt}</select><button class="btn sm" style="margin-left:6px" onclick="changeRole(${u.id})">保存</button></td></tr>`;
+    const opt=roles.map(rr=>`<option value="${rr.v}"${u.role===rr.v?' selected':''}>${rr.l}</option>`).join('');
+    html+=`<tr><td>${escapeHtml(String(u.id))}</td><td>${escapeHtml(u.username||'')}</td><td>${escapeHtml(u.real_name||'-')}</td><td>${escapeHtml(u.email||'-')}</td><td><span class="status-badge blue">${escapeHtml(roles.find(rr=>rr.v===u.role)?.l||u.role)}</span></td><td><select id="role_${u.id}" style="padding:4px 8px;border-radius:4px;font-size:12px">${opt}</select><button class="btn sm" style="margin-left:6px" onclick="changeRole(${u.id})">保存</button></td></tr>`;
   }
   html+='</tbody></table></div>';
   el.innerHTML=html;
 }
 function loadRolePerms(){
   const el=document.getElementById('rolePerms');if(!el)return;
-  const allRoles={'admin':['用户管理','数据看板','数据洞察','LCC分析','审批决策辅助','AI故障诊断','知识库搜索','故障案例','上传维修手册','维修作业录入','技能考核','IoT分析','BOM检查','申购分析','调拨评估','调派管理','比价分析','合同审查','合同查询','供应商风险评估','供应商推荐','价格趋势','文件上传'],'engineer':['AI故障诊断','知识库搜索','故障案例','上传维修手册','维修作业录入','技能考核','IoT分析','文件上传'],'supervisor':['BOM检查','申购分析','调拨评估','调派管理','文件上传'],'purchaser':['比价分析','合同审查','合同查询','供应商风险评估','供应商推荐','价格趋势','文件上传'],'leader':['审批决策辅助','数据看板','数据洞察','LCC分析','文件上传'],'guest':['个人信息','文件上传']};
+  const allRoles={'admin':['用户管理','数据看板','数据洞察','LCC分析','审批决策辅助','AI故障诊断','智能搜索','知识库管理','维修作业录入','技能考核','IoT分析','BOM检查','申购分析','调拨评估','调派管理','比价分析','合同审查','合同查询','供应商风险评估','供应商推荐','价格趋势','文件上传'],'engineer':['AI故障诊断','智能搜索','知识库管理','维修作业录入','技能考核','IoT分析','文件上传'],'supervisor':['BOM检查','申购分析','调拨评估','调派管理','文件上传'],'purchaser':['比价分析','合同审查','合同查询','供应商风险评估','供应商推荐','价格趋势','文件上传'],'leader':['审批决策辅助','数据看板','数据洞察','LCC分析','文件上传'],'guest':['个人信息','文件上传']};
   const rdata=[{k:'admin',l:'管理员',c:'#e74c3c'},{k:'engineer',l:'工程师',c:'#3498db'},{k:'supervisor',l:'主管',c:'#2ecc71'},{k:'purchaser',l:'采购员',c:'#f39c12'},{k:'leader',l:'领导',c:'#9b59b6'},{k:'guest',l:'访客',c:'#95a5a6'}];
   let html='';
   for(const r of rdata){
@@ -519,43 +529,162 @@ window.changeRole=async function(userId){
   alert(r.code===200?'角色修改成功！':'修改失败：'+(r.msg||'未知错误'));
 };
 
-// 诊断
-window.doDiagnosis=async function(){
-  const desc=document.getElementById('diag_desc').value;
-  if(!desc){alert('请输入故障描述');return}
-  const el=document.getElementById('diag_result');
-  el.style.display='block';el.innerHTML='<div class="loading">AI诊断中...</div>';
-  const r=await apiPost('/api/v1/engineer/diagnosis/diagnose',{设备ID:document.getElementById('diag_equip').value,故障描述:desc});
-  showResult(el,r,true);
+// ========== 智能搜索（合并知识库+故障案例，保留场景筛选） ==========
+window.renderSmartSearch = function(container) {
+  container.innerHTML = `
+    <h2>智能搜索</h2>
+    <div class="desc">一次搜索覆盖知识库文档和故障案例，可按场景筛选</div>
+    <div class="card">
+      <div class="form-group"><label>搜索问题</label><input id="ss_query" placeholder="请输入搜索关键词" onkeydown="if(event.key==='Enter')doSmartSearch()"></div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px">
+        <select id="ss_scene" style="padding:8px 12px;border:1px solid #d9d9d9;border-radius:6px;font-size:13px">
+          <option value="all">全部</option>
+          <option value="knowledge">知识库</option>
+          <option value="case">故障案例</option>
+        </select>
+        <span style="font-size:12px;color:#999">选择搜索范围</span>
+      </div>
+      <button class="btn" onclick="doSmartSearch()">🔍 搜索</button>
+      <div id="ss_result" class="result-box" style="display:none"></div>
+    </div>`;
 };
-// 知识库搜索
-window.doKBSearch=async function(){
-  const q=document.getElementById('kb_query').value;
-  if(!q){alert('请输入搜索内容');return}
-  const el=document.getElementById('kb_result');
-  el.style.display='block';el.innerHTML='<div class="loading">搜索中...</div>';
-  const r=await apiPost('/api/v1/engineer/knowledge/search',{问题:q,返回条数:3});
-  if(r.code===200&&r.data){
-    showResult(el,r.data,true);
-    if(r.data.sources)el.innerHTML+='<div style="margin-top:8px;font-size:12px;color:#999">来源：'+r.data.sources.map(s=>s.source).join(', ')+'</div>';
-  }else showResult(el,r,true);
+
+window.doSmartSearch = async function() {
+  const q = document.getElementById('ss_query').value;
+  if (!q) { alert('请输入搜索内容'); return; }
+  const scene = document.getElementById('ss_scene').value;
+  const el = document.getElementById('ss_result');
+  el.style.display = 'block';
+  el.innerHTML = '<div class="loading">搜索中...</div>';
+
+  let html = '';
+  try {
+    // 搜索知识库
+    if (scene === 'all' || scene === 'knowledge') {
+      const r1 = await apiPost('/api/v1/engineer/knowledge/search', { 问题: q, 返回条数: 3 });
+      if (r1.code === 200 && r1.data) {
+        const d = r1.data;
+        const answer = d.回答 || d.answer || '';
+        const refs = d.引用片段 || d.sources || [];
+        if (answer) {
+          html += '<div class="card" style="margin-bottom:12px;border-left:3px solid #1890ff"><div class="card-title">📚 知识库 — AI 综合回答</div><div class="text-result" style="line-height:1.7">' + escapeHtml(answer).replace(/\n/g,'<br>') + '</div></div>';
+          renderFeedbackWidget(el, 'knowledge', q, answer);
+        }
+        if (refs.length) {
+          html += '<div style="font-weight:600;margin:8px 0;color:#1890ff">📚 知识库片段（' + refs.length + '）</div>';
+          refs.forEach((s, i) => {
+            const src = s.来源 || s.source || '-';
+            const content = s.内容 || s.content || '';
+            html += '<div style="margin-bottom:8px;padding:10px;border:1px solid #e8e8e8;border-radius:8px;background:#f8f9fb"><div style="font-weight:600;margin-bottom:4px;font-size:12px;color:#666">#' + (i+1) + ' ' + escapeHtml(src) + '</div><div style="font-size:13px;color:#333;line-height:1.6;white-space:pre-wrap">' + escapeHtml(content) + '</div></div>';
+          });
+        }
+      }
+    }
+    // 搜索故障案例
+    if (scene === 'all' || scene === 'case') {
+      const r2 = await apiPost('/api/v1/engineer/knowledge/fault-cases/search', { 问题: q, 返回条数: 5 });
+      if (r2.code === 200 && r2.data) {
+        const cases = r2.data.案例列表 || r2.data.cases || [];
+        if (cases.length) {
+          html += '<div style="font-weight:600;margin:8px 0;color:#52c41a">📋 故障案例（' + cases.length + '）</div>';
+          cases.forEach((c, i) => {
+            const type = c.故障类型 || c.fault_type || '未知类型';
+            const content = c.内容 || c.content || '';
+            const resolution = c.解决方案 || c.resolution || '无';
+            html += '<div style="margin-bottom:8px;padding:10px;border:1px solid #e8e8e8;border-radius:8px;border-left:3px solid #52c41a;background:#f6ffed"><div style="font-weight:600;margin-bottom:4px;font-size:12px;color:#555">#' + (i+1) + ' ' + escapeHtml(type) + '</div><div style="font-size:13px;color:#333;line-height:1.6"><b>故障：</b>' + escapeHtml(content) + '<br><b style="color:#52c41a">方案：</b>' + escapeHtml(resolution) + '</div></div>';
+          });
+        }
+      }
+    }
+    if (!html) html = '<div class="empty-state">未检索到相关内容</div>';
+  } catch (e) {
+    html = '<div class="empty-state">搜索失败：' + e.message + '</div>';
+  }
+  el.innerHTML = html;
 };
-// 故障案例搜索
-window.doSearchCase=async function(){
-  const q=document.getElementById('case_query').value;
-  if(!q){alert('请输入搜索内容');return}
-  const el=document.getElementById('case_result');
-  el.style.display='block';el.innerHTML='<div class="loading">搜索中...</div>';
-  const r=await apiPost('/api/v1/engineer/knowledge/fault-cases/search',{问题:q,返回条数:5});
-  if(r.code===200&&r.data&&r.data.cases){
-    const cases=r.data.cases;
-    if(!cases.length){el.innerHTML='<div class="empty-state">未找到匹配案例</div>';return}
-    let html='<div style="font-weight:600;margin-bottom:8px">找到 '+cases.length+' 个匹配案例</div>';
-    cases.forEach((c,i)=>{
-      html+=`<div style="margin-bottom:12px;padding:12px;border:1px solid #e8e8e8;border-radius:8px"><div style="font-weight:600;margin-bottom:4px">#${i+1} ${c.fault_type||'未知类型'}</div><div style="font-size:13px;color:#666;margin-bottom:4px"><b>故障：</b>${c.content}</div><div style="font-size:13px;color:#52c41a"><b>方案：</b>${c.resolution||'无'}</div></div>`;
-    });
-    el.innerHTML=html;
-  }else showResult(el,r,true);
+
+// ========== AI故障诊断语音+图片辅助 ==========
+window.diagImages = [];
+window.toggleDiagVoice = async function() {
+  const btn = document.getElementById('diag_voice_btn');
+  const status = document.getElementById('diag_voice_status');
+  const desc = document.getElementById('diag_desc');
+  if (window._diagMediaRecorder && window._diagMediaRecorder.state === 'recording') {
+    window._diagMediaRecorder.stop();
+    return;
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const chunks = [];
+    window._diagMediaRecorder = new MediaRecorder(stream);
+    window._diagMediaRecorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+    window._diagMediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      if (blob.size < 100) { status.style.display = 'none'; return; }
+      status.textContent = '⏳ 语音识别中...';
+      status.style.display = 'inline';
+      const formData = new FormData();
+      formData.append('file', blob, 'voice.webm');
+      try {
+        const r = await fetch('/api/v1/engineer/work-order/speech-to-text', { method: 'POST', body: formData });
+        const j = await r.json();
+        if (j.code === 200 && j.data) {
+          const text = j.data.text || j.data.transcription || '';
+          if (text) desc.value += (desc.value ? '\n' : '') + text;
+        }
+      } catch (e) { console.error('语音识别失败', e); }
+      status.style.display = 'none';
+      btn.textContent = '🎤 语音输入';
+    };
+    window._diagMediaRecorder.start();
+    btn.textContent = '⏹ 停止录音';
+    status.textContent = '🎙️ 录音中...';
+    status.style.display = 'inline';
+  } catch (e) {
+    alert('无法访问麦克风：' + e.message);
+  }
+};
+window.diagUpdateImages = function() {
+  const input = document.getElementById('diag_img_input');
+  const preview = document.getElementById('diag_img_preview');
+  window.diagImages = Array.from(input.files);
+  preview.innerHTML = window.diagImages.map((f, i) =>
+    '<div style="position:relative;width:80px;height:80px;border:1px solid #d9d9d9;border-radius:6px;overflow:hidden">' +
+    '<img src="' + URL.createObjectURL(f) + '" style="width:100%;height:100%;object-fit:cover">' +
+    '<span style="position:absolute;bottom:0;left:0;right:0;font-size:10px;background:rgba(0,0,0,.5);color:#fff;text-align:center;padding:1px 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + f.name + '</span>' +
+    '</div>'
+  ).join('');
+};
+// 更新 doDiagnosis 支持图片上传
+const _origDiagnosis = window.doDiagnosis;
+window.doDiagnosis = async function() {
+  const desc = document.getElementById('diag_desc').value;
+  if (!desc && !window.diagImages.length) { alert('请输入故障描述或上传故障图片'); return; }
+  const el = document.getElementById('diag_result');
+  el.style.display = 'block'; el.innerHTML = '<div class="loading">AI诊断中...</div>';
+  const equipmentId = document.getElementById('diag_equip').value;
+  // 如果有图片，先上传图片到服务器
+  let imageUrls = [];
+  if (window.diagImages.length) {
+    const fd = new FormData();
+    window.diagImages.forEach(f => fd.append('files', f));
+    try {
+      const uploadRes = await fetch('/api/v1/common/upload/file', { method: 'POST', body: fd });
+      const uploadJson = await uploadRes.json();
+      if (uploadJson.code === 200 && Array.isArray(uploadJson.data)) {
+        imageUrls = uploadJson.data.map(item => item.url || item).filter(Boolean);
+      }
+    } catch(e) { console.error('图片上传失败', e); }
+  }
+  const r = await apiPost('/api/v1/engineer/diagnosis/diagnose', {
+    设备ID: equipmentId,
+    故障描述: desc,
+    image_urls: imageUrls
+  });
+  showResult(el, r, true);
+  const aiAnswer = (r.data?.诊断结果 || r.data?.diagnosis || r.data?.answer || r.data || '');
+  renderFeedbackWidget(el, 'diagnosis', desc, typeof aiAnswer === 'string' ? aiAnswer : JSON.stringify(aiAnswer));
 };
 window.doAddCase=async function(){
   const type=document.getElementById('case_type').value;
@@ -708,15 +837,17 @@ window.renderRepairWork=function(container){
         <div id="rw_report_result" class="result-box" style="display:none"></div>
       </div>
     </div>
-    <!-- 录入知识库 -->
+    <!-- 录入知识库 + 故障案例 -->
     <div id="rw_store" style="display:none">
       <div class="card">
         <div class="card-title">录入维修数据到知识库</div>
         <div class="form-group"><label>设备ID</label><input id="rw_store_equip" placeholder="EQ-001"></div>
+        <div class="form-group"><label>故障类型</label><input id="rw_store_fault_type" placeholder="如电气故障、机械故障（录入故障案例时必填）"></div>
         <div class="form-group"><label>故障描述</label><textarea id="rw_store_desc" style="min-height:80px" placeholder="描述故障现象..."></textarea></div>
         <div class="form-group"><label>维修方案</label><textarea id="rw_store_solution" style="min-height:80px" placeholder="维修处理方案..."></textarea></div>
         <div class="form-group"><label>附件</label><div class="file-upload-zone" id="rw_s_zone" onclick="document.getElementById('rw_s_file').click()"><div class="icon">📎</div><div class="text">选择附件（可选）</div><div class="hint">支持图片/PDF/Word</div></div>
         <input type="file" id="rw_s_file" style="display:none" accept=".pdf,.doc,.docx,.jpg,.png"></div>
+        <div style="margin-bottom:8px"><label><input type="checkbox" id="rw_store_as_case" checked> 同时录入故障案例库（需填写故障类型）</label></div>
         <div id="rw_s_info" style="display:none" class="file-info">📎 <span id="rw_s_name"></span></div>
         <button class="btn success" onclick="doRWStore()">录入知识库</button>
         <div id="rw_store_result" class="result-box" style="display:none"></div>
@@ -820,7 +951,10 @@ window.doRWStore=async function(){
   const equip=document.getElementById('rw_store_equip').value;
   const desc=document.getElementById('rw_store_desc').value;
   const solution=document.getElementById('rw_store_solution').value;
+  const faultType=document.getElementById('rw_store_fault_type').value;
+  const asCase=document.getElementById('rw_store_as_case').checked;
   if(!equip||!desc){alert('请输入设备ID和故障描述');return}
+  if(asCase&&!faultType){alert('勾选了录入故障案例库，请填写故障类型');return}
   const el=document.getElementById('rw_store_result');
   el.style.display='block';el.innerHTML='<div class="loading">录入知识库中...</div>';
   // Build text for knowledge base
@@ -828,10 +962,14 @@ window.doRWStore=async function(){
   try{
     // Store to Milvus via RAG service
     const r=await apiPost('/api/v1/engineer/knowledge/ingest',{文本:kbText,元数据:{source:'maintenance_store',设备ID:equip,type:'repair_record'}});
+    // If checkbox is checked, also save as fault case
+    if(asCase){
+      await apiPost('/api/v1/engineer/knowledge/ingest-case',{故障描述:desc,故障类型:faultType,解决方案:solution||'无',设备ID:equip});
+    }
     // If there's an attachment, upload to MinIO separately
     const file=document.getElementById('rw_s_file').files[0];
     if(file){
-      const fd=new FormData();fd.append('file',file);fd.append('equipment_id',equip);fd.append('source','maintenance_store');
+      const fd=new FormData();fd.append('files',file);fd.append('equipment_id',equip);fd.append('source','maintenance_store');
       await apiPost('/api/v1/engineer/knowledge/upload-attachment',fd,true);
     }
     showResult(el,r,true);
@@ -848,6 +986,8 @@ window.doIoT=async function(){
   el.style.display='block';el.innerHTML='<div class="loading">分析中...</div>';
   const r=await apiPost('/api/v1/engineer/predictive/analyze',{设备ID:equip,传感器数据:sensor_data});
   showResult(el,r,true);
+  const aiAnswer = (r.data?.analysis||r.data?.result||r.data||'');
+  renderFeedbackWidget(el, 'diagnosis', 'IoT分析 - 设备:'+equip, typeof aiAnswer==='string'?aiAnswer:JSON.stringify(aiAnswer));
 };
 
 // BOM检查
@@ -1071,6 +1211,8 @@ window.doAIApprove=async function(id,type,applicant,amount,desc){
     html+=`</div>`;
     html+='</div>';
     el.innerHTML=html;
+    const aiSummary = d.summary||d.recommendation||'';
+    renderFeedbackWidget(el, 'approval', desc, aiSummary);
   } else showResult(el,r,true);
 };
 window.doSingleApprove=async function(id,action){
@@ -1159,6 +1301,8 @@ window.doInsight=async function(){
   el.style.display='block';el.innerHTML='<div class="loading">AI分析中...</div>';
   const r=await apiPost('/api/v1/leader/dashboard/insight',{问题:topic,查询结果:[]});
   showResult(el,r,true);
+  const aiAnswer = (r.data?.answer||r.data||'');
+  renderFeedbackWidget(el, 'approval', topic, typeof aiAnswer==='string'?aiAnswer:JSON.stringify(aiAnswer));
 };
 
 function renderLCC(container){
@@ -1555,6 +1699,268 @@ window.submitExam=async function(){
   }else showResult(el,r,true);
 };
 
+// ========== 多模态知识库 ==========
+window.renderMultimodalKnowledge = function(container) {
+  container.innerHTML = `
+    <style>
+    .mmk-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 4px}
+    .mmk-header h2{font-size:20px;color:#1a1a2e;margin:0}
+    .mmk-header .badge{background:#e6f7ff;color:#1890ff;border:1px solid #91d5ff;padding:2px 10px;border-radius:12px;font-size:11px}
+    .mmk-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid #e8e8e8}
+    .mmk-tab{padding:10px 24px;cursor:pointer;font-size:14px;color:#666;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s}
+    .mmk-tab:hover{color:#1890ff;background:#f0f7ff;border-radius:8px 8px 0 0}
+    .mmk-tab.active{color:#1a1a2e;border-bottom-color:#1a1a2e;font-weight:600}
+    .mmk-upload-zone{border:2px dashed #c0c4cc;border-radius:12px;padding:36px 24px;text-align:center;cursor:pointer;transition:.2s;background:#f8f9fb}
+    .mmk-upload-zone:hover,.mmk-upload-zone.dragover{border-color:#1890ff;background:#eef4ff}
+    .mmk-upload-zone .icon{font-size:40px;color:#999}
+    .mmk-upload-zone .text{color:#555;margin-top:10px;font-size:15px;font-weight:500}
+    .mmk-upload-zone .hint{color:#aaa;font-size:12px;margin-top:4px}
+    .mmk-files{margin-top:12px}
+    .mmk-file-item{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:8px;margin-bottom:6px;font-size:13px;animation:slideIn .2s ease}
+    .mmk-file-item .name{flex:1;word-break:break-all;font-weight:500}
+    .mmk-file-item .size{color:#999;font-size:12px}
+    .mmk-file-item .remove{color:#ff4d4f;cursor:pointer;border:none;background:none;font-size:18px;padding:0 4px}
+    .mmk-strategy-tag{display:inline-block;padding:2px 10px;border-radius:10px;font-size:11px;background:#f0f5ff;color:#2f54eb;border:1px solid #adc6ff;margin-left:8px}
+    .mmk-strategy-tag.multimodal{background:#fff7e6;color:#d46b08;border-color:#ffd591}
+    .mmk-image-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-top:12px}
+    .mmk-image-card{border:1px solid #e8e8e8;border-radius:10px;overflow:hidden;background:#fff;transition:.2s}
+    .mmk-image-card:hover{box-shadow:0 4px 12px rgba(0,0,0,.1);transform:translateY(-2px)}
+    .mmk-image-card img{width:100%;height:140px;object-fit:cover;display:block}
+    .mmk-image-card .label{padding:6px 10px;font-size:12px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .mmk-result-item{background:#fff;border:1px solid #e8e8e8;border-radius:10px;padding:14px;margin-bottom:10px;transition:.15s}
+    .mmk-result-item:hover{border-color:#91d5ff;box-shadow:0 2px 8px rgba(24,144,255,.08)}
+    .mmk-result-item .meta{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px}
+    .mmk-result-item .meta .tag{padding:2px 8px;border-radius:4px;font-size:11px}
+    .mmk-result-item .content{font-size:13px;color:#333;line-height:1.7;white-space:pre-wrap}
+    .mmk-search-input{display:flex;gap:8px}
+    .mmk-search-input input{flex:1;padding:10px 14px;border:1px solid #d9d9d9;border-radius:8px;font-size:14px;transition:.2s}
+    .mmk-search-input input:focus{outline:none;border-color:#1890ff;box-shadow:0 0 0 2px rgba(24,144,255,.2)}
+    @keyframes slideIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+    </style>
+    <div class="mmk-header">
+      <h2>多模态知识库</h2>
+      <span class="badge">📸 图文混合检索</span>
+    </div>
+    <div class="desc" style="margin-bottom:12px">上传 PDF 文档自动识别策略（纯文本 vs 图文混合），检索时同时返回文本片段和关联图片</div>
+    <div class="mmk-tabs">
+      <div class="mmk-tab active" data-mmk-tab="upload" onclick="switchMMKTab('upload')">📤 上传文档</div>
+      <div class="mmk-tab" data-mmk-tab="search" onclick="switchMMKTab('search')">🔍 图文检索</div>
+    </div>
+    <div id="mmk_upload">
+      <div class="card">
+        <div class="card-title">上传文档 <span style="font-weight:400;font-size:12px;color:#999">— 系统自动判断处理策略</span></div>
+        <div class="mmk-upload-zone" id="mmk_zone">
+          <div class="icon">📄</div>
+          <div class="text">拖拽文件到此处，或点击选择</div>
+          <div class="hint">支持 PDF / Word / TXT / 图片（PDF 含图自动触发多模态切片）</div>
+        </div>
+        <input type="file" id="mmk_file" style="display:none" accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg" multiple>
+        <div class="form-group" style="margin-top:8px">
+          <label>来源名称（可选）</label>
+          <input id="mmk_source" placeholder="如空压机维修手册，多文件时作为前缀">
+        </div>
+        <div id="mmk_files" class="mmk-files" style="display:none"></div>
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <button class="btn" id="mmk_upload_btn" onclick="mmkStartUpload()">🚀 开始上传</button>
+          <button class="btn danger sm" id="mmk_cancel_btn" style="display:none">取消</button>
+        </div>
+        <div id="mmk_upload_result" class="result-box" style="display:none"></div>
+      </div>
+    </div>
+    <div id="mmk_search" style="display:none">
+      <div class="card">
+        <div class="card-title">图文混合检索</div>
+        <div class="mmk-search-input">
+          <input id="mmk_query" placeholder="输入搜索问题，如「设备安装步骤是什么？」">
+          <button class="btn" onclick="mmkDoSearch()" style="width:auto;min-width:80px">🔍 搜索</button>
+        </div>
+        <div id="mmk_search_result" style="display:none;margin-top:12px"></div>
+      </div>
+    </div>
+  `;
+  // Setup drag-drop
+  const zone = document.getElementById('mmk_zone');
+  const input = document.getElementById('mmk_file');
+  zone.onclick = () => input.click();
+  zone.ondragover = e => { e.preventDefault(); zone.classList.add('dragover'); };
+  zone.ondragleave = () => zone.classList.remove('dragover');
+  zone.ondrop = e => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) input.files = e.dataTransfer.files;
+    mmkUpdateFiles();
+  };
+  input.onchange = mmkUpdateFiles;
+};
+
+window.switchMMKTab = function(tab) {
+  document.querySelectorAll('.mmk-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector(`[data-mmk-tab="${tab}"]`).classList.add('active');
+  document.getElementById('mmk_upload').style.display = tab === 'upload' ? 'block' : 'none';
+  document.getElementById('mmk_search').style.display = tab === 'search' ? 'block' : 'none';
+};
+
+window.mmkUpdateFiles = function() {
+  const el = document.getElementById('mmk_files');
+  const files = document.getElementById('mmk_file').files;
+  if (!files || !files.length) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  let html = '';
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i];
+    const size = f.size > 1024 * 1024 ? (f.size / 1024 / 1024).toFixed(1) + ' MB' : (f.size / 1024).toFixed(1) + ' KB';
+    html += `<div class="mmk-file-item">
+      <span>📎</span>
+      <span class="name">${f.name}</span>
+      <span class="size">${size}</span>
+      <button class="remove" onclick="mmkRemoveFile(${i})">×</button>
+    </div>`;
+  }
+  el.innerHTML = html;
+  el.style.display = 'block';
+};
+
+window.mmkRemoveFile = function(idx) {
+  // Can't truly remove from FileList, so reset and re-add
+  const input = document.getElementById('mmk_file');
+  const dt = new DataTransfer();
+  for (let i = 0; i < input.files.length; i++) {
+    if (i !== idx) dt.items.add(input.files[i]);
+  }
+  input.files = dt.files;
+  mmkUpdateFiles();
+};
+
+let mmkAbortController = null;
+window.mmkStartUpload = async function() {
+  const input = document.getElementById('mmk_file');
+  if (!input.files || !input.files.length) { alert('请先选择文件'); return; }
+  const source = document.getElementById('mmk_source').value;
+  const btn = document.getElementById('mmk_upload_btn');
+  const cancelBtn = document.getElementById('mmk_cancel_btn');
+  const resultEl = document.getElementById('mmk_upload_result');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ 上传中 (' + input.files.length + '个文件)...';
+  cancelBtn.style.display = 'inline-block';
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = '<div class="loading">正在上传并由大模型判断处理策略...</div>';
+
+  const fd = new FormData();
+  for (let i = 0; i < input.files.length; i++) fd.append('files', input.files[i]);
+  if (source) fd.append('source', source);
+
+  mmkAbortController = new AbortController();
+  try {
+    const res = await fetch(API_BASE + '/api/v1/engineer/knowledge/upload', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + getToken() },
+      body: fd,
+      signal: mmkAbortController.signal,
+    });
+    const json = await res.json();
+    resultEl.style.display = 'block';
+    if (json.code === 200 && json.data && json.data.files) {
+      let html = '<div class="card"><div class="card-title" style="color:#52c41a">✅ 上传完成</div>';
+      json.data.files.forEach(f => {
+        const icon = f.error ? '❌' : '✅';
+        html += `<div style="padding:8px 0;border-bottom:1px solid #f0f0f0">
+          <div style="font-weight:600;font-size:13px">${icon} ${escapeHtml(f.filename)}</div>`;
+        if (f.strategy) html += `<div style="font-size:12px;color:#666;margin:2px 0">策略：<span class="mmk-strategy-tag${f.strategy.includes('multimodal')?' multimodal':''}">${escapeHtml(f.strategy)}</span></div>`;
+        if (f.error) html += `<div style="font-size:12px;color:#ff4d4f">${escapeHtml(f.error)}</div>`;
+        if (f.stats) {
+          const s = f.stats;
+          html += `<div style="font-size:12px;color:#999">Chunks: ${s.inserted||0}/${s.total_chunks||0} | 含图: ${s.with_images||0} | 类型: ${JSON.stringify(s.by_type||{})}</div>`;
+        }
+        if (f.ingested_chunks != null) html += `<div style="font-size:12px;color:#999">已切片: ${f.ingested_chunks} 块</div>`;
+        html += '</div>';
+      });
+      html += '</div>';
+      resultEl.innerHTML = html;
+    } else {
+      showResult(resultEl, json);
+    }
+  } catch (e) {
+    if (e.name === 'AbortError') {
+      resultEl.innerHTML = '<div class="empty-state">已取消上传</div>';
+    } else {
+      resultEl.innerHTML = '<div class="empty-state">上传失败：' + e.message + '</div>';
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '🚀 开始上传';
+    cancelBtn.style.display = 'none';
+    mmkAbortController = null;
+  }
+};
+document.getElementById('mmk_cancel_btn')?.addEventListener('click', () => {
+  if (mmkAbortController) mmkAbortController.abort();
+});
+
+window.mmkDoSearch = async function() {
+  const query = document.getElementById('mmk_query').value;
+  if (!query) { alert('请输入搜索问题'); return; }
+  const resultEl = document.getElementById('mmk_search_result');
+  resultEl.style.display = 'block';
+  resultEl.innerHTML = '<div class="loading">检索中...</div>';
+  try {
+    const r = await apiPost('/api/v1/engineer/knowledge/multimodal-search', {
+      问题: query, 返回条数: 5, 返回图片: true
+    });
+    if (r.code !== 200) {
+      resultEl.innerHTML = '<div class="empty-state">' + escapeHtml(r.msg || '检索失败') + '</div>';
+      return;
+    }
+    const d = r.data || {};
+    const answer = d.回答 || '';
+    const sources = d.引用片段 || [];
+    const images = d.图片列表 || [];
+    let html = '';
+
+    // Answer
+    if (answer) {
+      html += '<div class="card" style="margin-bottom:12px"><div class="card-title" style="color:#1a1a2e">📋 AI 综合回答</div><div class="text-result" style="line-height:1.8;font-size:14px">' + escapeHtml(answer).replace(/\n/g, '<br>') + '</div></div>';
+    }
+
+    // Image gallery
+    if (images.length) {
+      html += '<div class="card"><div class="card-title" style="color:#1a1a2e">🖼️ 关联图片 (' + images.length + ')</div><div class="mmk-image-grid">';
+      images.forEach(img => {
+        const url = img.预签名URL || img.presigned_url || '';
+        const label = '第' + (img.页码 != null ? img.页码 : '?') + '页';
+        html += `<div class="mmk-image-card"><img src="${url}" alt="page ${img.页码}" loading="lazy" onerror="this.parentElement.innerHTML='<div style=\\'padding:60px 10px;text-align:center;color:#ccc;font-size:12px\\'>图片加载失败</div>'"><div class="label">${label}</div></div>`;
+      });
+      html += '</div></div>';
+    }
+
+    // Source chunks
+    if (sources.length) {
+      html += '<div style="font-weight:600;font-size:14px;margin:12px 0 8px;color:#333">📄 相关片段 (' + sources.length + ')</div>';
+      sources.forEach((s, i) => {
+        const src = s.来源 || s.source || '-';
+        const content = s.内容 || s.content || '';
+        const ctype = s.类型 || s.chunk_type || '';
+        const page = s.页码 != null ? s.页码 : (s.page_num != null ? s.page_num : '-');
+        const dist = s.距离 != null ? Number(s.距离).toFixed(4) : (s.distance != null ? Number(s.distance).toFixed(4) : '');
+        const typeLabel = ctype === 'image_with_text' ? '🖼️ 图文' : ctype === 'title_block' ? '📌 标题' : '📝 文本';
+        html += `<div class="mmk-result-item">
+          <div class="meta">
+            <span class="tag blue">${typeLabel}</span>
+            <span class="tag green">第 ${page} 页</span>
+            <span style="font-size:11px;color:#999;margin-left:auto">距离 ${dist}</span>
+          </div>
+          <div style="font-size:11px;color:#999;margin-bottom:4px">来源: ${escapeHtml(src)}</div>
+          <div class="content">${escapeHtml(content)}</div>
+        </div>`;
+      });
+    }
+
+    if (!html) html = '<div class="empty-state">未检索到相关内容</div>';
+    resultEl.innerHTML = html;
+  } catch (e) {
+    resultEl.innerHTML = '<div class="empty-state">检索失败：' + e.message + '</div>';
+  }
+};
+
 // ========== 页面路由（核心导航） ==========
 const PAGE_RENDER = {
   // Admin
@@ -1562,10 +1968,26 @@ const PAGE_RENDER = {
   '数据看板': renderLeaderDashboard,
   'LCC分析': renderLCC,
   // Engineer
-  'AI故障诊断': function(c){c.innerHTML=`<h2>AI故障诊断</h2><div class="desc">输入设备故障现象，AI智能分析原因与方案</div><div class="card"><div class="form-group"><label>设备ID</label><input id="diag_equip" placeholder="如：EQ-001"></div><div class="form-group"><label>故障描述</label><textarea id="diag_desc" placeholder="详细描述故障现象..."></textarea></div><button class="btn" onclick="doDiagnosis()">开始诊断</button><div id="diag_result" class="result-box" style="display:none"></div></div>`;},
-  '知识库搜索': function(c){c.innerHTML=`<h2>知识库搜索</h2><div class="desc">搜索设备维修手册、技术文档</div><div class="card"><div class="form-group"><label>搜索问题</label><input id="kb_query" placeholder="请输入搜索关键词"></div><button class="btn" onclick="doKBSearch()">搜索</button><div id="kb_result" class="result-box" style="display:none"></div></div>`;},
-  '故障案例': function(c){c.innerHTML=`<h2>故障案例库</h2><div class="desc">搜索历史故障案例</div><div class="card"><div class="form-group"><label>搜索故障描述</label><input id="case_query" placeholder="输入关键词"></div><button class="btn" onclick="doSearchCase()">搜索案例</button><div id="case_result" class="result-box" style="display:none"></div></div><div class="card"><div class="card-title">录入故障案例</div><div class="form-group"><label>故障类型</label><input id="case_type" placeholder="如电气故障"></div><div class="form-group"><label>故障描述</label><textarea id="case_desc"></textarea></div><div class="form-group"><label>解决方案</label><textarea id="case_resolution"></textarea></div><button class="btn success" onclick="doAddCase()">录入</button><div id="case_add_result" class="result-box" style="display:none"></div></div>`;},
-  '上传维修手册': function(c){c.innerHTML=`<h2>上传维修手册</h2><div class="desc">支持PDF、Word、TXT、图片等格式</div>`;renderFileUpload(c,'/api/v1/engineer/knowledge/upload-manual',[{key:'source',label:'手册名称',placeholder:'如空压机维修手册'}],{title:'上传维修手册',accept:'.pdf,.doc,.docx,.txt,.xls,.xlsx,.png,.jpg',acceptText:'支持PDF/Word/TXT/Excel/图片'});},
+  'AI故障诊断': function(c){
+    c.innerHTML=`
+      <h2>AI故障诊断</h2>
+      <div class="desc">支持文字/语音/图片多种方式描述故障，AI智能分析原因与方案</div>
+      <div class="card">
+        <div class="form-group"><label>设备ID</label><input id="diag_equip" placeholder="如：EQ-001"></div>
+        <div class="form-group"><label>故障描述</label><textarea id="diag_desc" placeholder="详细描述故障现象..."></textarea></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px">
+          <button class="btn sm" id="diag_voice_btn" onclick="toggleDiagVoice()">🎤 语音输入</button>
+          <span id="diag_voice_status" style="font-size:12px;color:#999;display:none"></span>
+          <button class="btn sm" onclick="document.getElementById('diag_img_input').click()">📸 上传故障图片</button>
+          <input type="file" id="diag_img_input" style="display:none" accept="image/*" multiple onchange="diagUpdateImages()">
+        </div>
+        <div id="diag_img_preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px"></div>
+        <button class="btn" onclick="doDiagnosis()">开始诊断</button>
+        <div id="diag_result" class="result-box" style="display:none"></div>
+      </div>`;
+  },
+  '智能搜索': renderSmartSearch,
+  '知识库管理': renderMultimodalKnowledge,
   '语音转文字': renderRepairWork,
   '图片分析': renderRepairWork,
   '生成报告': renderRepairWork,
@@ -1634,7 +2056,225 @@ const PAGE_RENDER = {
   '个人信息': renderHome,
   // File upload for all
   '文件上传': function(c){c.innerHTML=`<h2>文件上传</h2><div class="desc">通用文件上传，支持多文件同时上传</div>`;renderFileUpload(c,'/api/v1/common/upload/file',null,{title:'通用文件上传',multiple:true});},
+  // Phase 1: 设备台账
+  '设备台账': function(c){c.innerHTML=`<h2>设备台账</h2><div class="desc">设备全生命周期管理台账</div>
+<div class="card"><div class="card-title">筛选</div><div style="display:flex;gap:8px;flex-wrap:wrap"><select id="eq_status_filter" onchange="loadEquipmentList()"><option value="">全部状态</option><option value="in_use">正常使用</option><option value="in_storage">入库待使用</option><option value="pending_repair">待维修</option><option value="under_repair">维修中</option><option value="scrapped">已报废</option></select><select id="eq_area_filter" onchange="loadEquipmentList()"><option value="">全部厂区</option></select><button class="btn sm" onclick="showAddEquipment()">+ 新增设备</button></div></div>
+<div id="eq_list"><div class="loading">加载设备列表...</div></div>
+<div id="eq_add_modal" style="display:none"></div>`;setTimeout(loadEquipmentList,100);},
+  // Phase 2: 黄金问答库
+  '黄金问答库': function(c){c.innerHTML=`<h2>黄金问答库</h2><div class="desc">审核通过的优质问答对，RAG检索时优先注入</div>
+<div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="gqa_scene"><option value="">全部场景</option><option value="knowledge">知识库</option><option value="diagnosis">故障诊断</option></select><button class="btn sm" onclick="loadGoldenQA()">刷新</button><button class="btn sm warning" onclick="refreshGoldenQA()">同步缓存</button></div></div>
+<div id="gqa_list"><div class="loading">加载中...</div></div>`;setTimeout(loadGoldenQA,100);},
+  // Phase 3: 审计日志
+  '审计日志': function(c){c.innerHTML=`<h2>审计日志</h2><div class="desc">系统操作审计记录</div>
+<div class="card"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><select id="audit_type" onchange="loadAuditLogs()"><option value="">全部类型</option><option value="role_change">角色变更</option><option value="approval">审批操作</option><option value="doc_level_change">文档等级变更</option><option value="equipment_status">设备状态变更</option></select><button class="btn sm" onclick="loadAuditLogs()">刷新</button></div></div>
+<div id="audit_list"><div class="loading">加载中...</div></div>`;setTimeout(loadAuditLogs,100);},
+  // Phase 4: Text2SQL
+  'Text2SQL查询': function(c){c.innerHTML=`<h2>Text2SQL 数据查询</h2><div class="desc">用自然语言查询数据库，无需写SQL</div>
+<div class="card"><div class="form-group"><label>查询问题</label><textarea id="t2s_query" placeholder="例如：查询本月维修单总数并按设备分组"></textarea></div><button class="btn" onclick="doText2SQL()">查询</button></div>
+<div id="t2s_result" class="result-box" style="display:none"></div>
+<div id="t2s_data" class="result-box" style="display:none;overflow-x:auto"></div>`;},
+  // Phase 5: 文档解析
+  '文档解析': function(c){c.innerHTML=`<h2>文档解析</h2><div class="desc">增强文档解析 + 结构切片 + 预览确认</div>`;renderFileUpload(c,'/api/v1/common/upload/parse',[{key:'source',label:'文档名称（可选）',placeholder:'如空压机说明书'}],{title:'上传文档解析',multiple:false,accept:'.pdf,.doc,.docx,.txt,.png,.jpg',acceptText:'支持 PDF / Word / TXT / 图片',onResult:function(el,json){if(json.code===200&&json.data){const d=json.data;let html='<div class="card-title">解析结果</div><table class="data-table"><tr><td>状态</td><td>'+(d.status||'ok')+'</td></tr><tr><td>总字符数</td><td>'+(d.total_chars||0)+'</td></tr><tr><td>切片数</td><td>'+(d.total_chunks||0)+'</td></tr></table>';if(d.metadata){html+='<div class="card-title">元数据</div><table class="data-table">';for(const[k,v]of Object.entries(d.metadata)){html+='<tr><td>'+k+'</td><td>'+(Array.isArray(v)?v.join(', '):v)+'</td></tr>'}html+='</table>'}if(d.chunks&&d.chunks.length){html+='<div class="card-title">切片预览（前5条）</div>';d.chunks.slice(0,5).forEach((ch,i)=>{html+='<div style="padding:8px;margin:4px 0;background:#f6f8fa;border-left:3px solid #1890ff;font-size:12px"><div style="color:#1890ff;font-weight:600">#'+(i+1)+' '+ch.title+' [类型:'+ch.type+']</div><div>'+ch.text.substring(0,200)+'...</div></div>'})}el.innerHTML=html;}else{el.innerHTML='<div class="empty-state">解析失败：'+(json.msg||'未知错误')+'</div>'}}});},
 };
+
+// ========== 设备台账功能 (Phase 1) ==========
+async function loadEquipmentList(){
+  const container=document.getElementById('eq_list');
+  if(!container)return;
+  const status=document.getElementById('eq_status_filter')?.value||'';
+  try{
+    const r=await fetch(API_BASE+'/api/v1/supervisor/equipment/list?page=1&page_size=50&%E8%AE%BE%E5%A4%87%E7%8A%B6%E6%80%81='+status,{headers:{'Authorization':'Bearer '+getToken()}});
+    const j=await r.json();
+    if(j.code===200&&j.data&&j.data.items){
+      let html='<div class="card"><div class="card-title">设备列表（共'+j.data.total+'台）</div><div class="table-wrapper"><table class="data-table"><thead><tr><th>编号</th><th>名称</th><th>型号</th><th>状态</th><th>厂区</th><th>放置地点</th><th>操作</th></tr></thead><tbody>';
+      j.data.items.forEach(eq=>{
+        const statusMap={'in_use':'正常使用','in_storage':'入库待使用','pending_repair':'待维修','under_repair':'维修中','scrapped':'已报废'};
+        html+='<tr><td>'+eq.设备编码+'</td><td>'+eq.设备名称+'</td><td>'+(eq.设备型号||'-')+'</td><td>'+statusMap[eq.设备状态]||eq.设备状态+'</td><td>'+(eq.所属厂区||'-')+'</td><td>'+(eq.入库放置地点||eq.报废地点||'-')+'</td><td><button class="btn sm" onclick="changeEqStatus('+eq.id+')">状态变更</button></td></tr>';
+      });
+      html+='</tbody></table></div></div>';
+      container.innerHTML=html;
+    }else{container.innerHTML='<div class="empty-state">暂无设备数据</div>';}
+  }catch(e){container.innerHTML='<div class="empty-state">加载失败：'+e.message+'</div>';}
+}
+function showAddEquipment(){
+  const modal=document.getElementById('eq_add_modal');
+  if(!modal)return;
+  modal.style.display='block';
+  modal.innerHTML=`<div class="card"><div class="card-title">新增设备</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+  <div class="form-group"><label>设备编码*</label><input id="eq_new_code"></div>
+  <div class="form-group"><label>设备名称*</label><input id="eq_new_name"></div>
+  <div class="form-group"><label>型号</label><input id="eq_new_model"></div>
+  <div class="form-group"><label>分类</label><input id="eq_new_cat"></div>
+  <div class="form-group"><label>厂区</label><input id="eq_new_area"></div>
+  <div class="form-group"><label>车间</label><input id="eq_new_ws"></div>
+  <div class="form-group"><label>状态</label><select id="eq_new_status"><option value="in_use">正常使用</option><option value="in_storage">入库待使用</option><option value="pending_repair">待维修</option><option value="under_repair">维修中</option><option value="scrapped">已报废</option></select></div>
+  <div class="form-group"><label>放置地点</label><input id="eq_new_loc"></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:8px"><button class="btn success" onclick="doAddEquipment()">保存</button><button class="btn danger" onclick="document.getElementById('eq_add_modal').style.display='none'">取消</button></div></div>`;
+}
+async function doAddEquipment(){
+  const body={设备编码:document.getElementById('eq_new_code').value,设备名称:document.getElementById('eq_new_name').value,设备型号:document.getElementById('eq_new_model').value,设备分类:document.getElementById('eq_new_cat').value,所属厂区:document.getElementById('eq_new_area').value,所属车间:document.getElementById('eq_new_ws').value,设备状态:document.getElementById('eq_new_status').value,入库放置地点:document.getElementById('eq_new_loc').value};
+  try{
+    const r=await fetch(API_BASE+'/api/v1/supervisor/equipment/',{method:'POST',headers:{'Authorization':'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(j.code===200){showToast('success','设备创建成功');document.getElementById('eq_add_modal').style.display='none';loadEquipmentList();}
+    else showToast('error',j.msg||'创建失败');
+  }catch(e){showToast('error',e.message);}
+}
+async function changeEqStatus(id){
+  const newStatus=prompt('输入新状态：in_use(正常使用) in_storage(入库) pending_repair(待维修) under_repair(维修中) scrapped(报废)');
+  if(!newStatus)return;
+  try{
+    const r=await fetch(API_BASE+'/api/v1/supervisor/equipment/'+id+'/status',{method:'POST',headers:{'Authorization':'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify({设备状态:newStatus})});
+    const j=await r.json();
+    if(j.code===200){showToast('success','状态已变更');loadEquipmentList();}
+    else showToast('error',j.msg||'变更失败');
+  }catch(e){showToast('error',e.message);}
+}
+
+// ========== 内联AI回答评测 (Phase 3) ==========
+// 在AI回答后内联显示评分入口，scene: diagnosis/knowledge/approval
+function renderFeedbackWidget(resultEl, scene, question, aiAnswer) {
+  const uid = 'fb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+  const stars = [1,2,3,4,5];
+  const widget = document.createElement('div');
+  widget.className = 'card';
+  widget.style.cssText = 'margin-top:12px;border-left:3px solid #fa8c16;background:#fffbe6';
+  widget.innerHTML = `
+    <div class="card-title" style="cursor:pointer;display:flex;justify-content:space-between;align-items:center" onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'">
+      <span>⭐ 评价此回答</span><span style="font-size:12px;color:#999">点击展开</span>
+    </div>
+    <div id="${uid}_body" style="display:none">
+      <div style="margin-bottom:8px;display:flex;align-items:center;gap:4px">
+        <span style="font-size:13px;color:#666;margin-right:8px">评分：</span>
+        ${stars.map(s=>`<span id="${uid}_s${s}" style="font-size:22px;cursor:pointer;color:#ddd;transition:color 0.2s" onclick="highlightStars('${uid}',${s})" onmouseenter="highlightStars('${uid}',${s})">★</span>`).join('')}
+        <span id="${uid}_score_text" style="font-size:12px;color:#999;margin-left:8px"></span>
+      </div>
+      <div style="margin-bottom:8px;font-size:13px">
+        <label><input type="checkbox" id="${uid}_accurate" checked> 答案准确</label>
+      </div>
+      <div style="margin-bottom:8px">
+        <textarea id="${uid}_correction" placeholder="如AI回答有误，请给出正确答案或补充说明（可选）" style="width:100%;min-height:60px;font-size:13px;padding:8px;border:1px solid #d9d9d9;border-radius:6px;resize:vertical"></textarea>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn sm" onclick="submitInlineFeedback('${uid}','${scene}','${escapeHtml(question)}','${escapeHtml(aiAnswer)}')">提交评价</button>
+        <span id="${uid}_status" style="font-size:12px;color:#52c41a"></span>
+      </div>
+    </div>`;
+  resultEl.appendChild(widget);
+  window['_fb_'+uid] = { score: 0 };
+}
+window.highlightStars = function(uid, score) {
+  window['_fb_'+uid] = window['_fb_'+uid] || { score: 0 };
+  window['_fb_'+uid].score = score;
+  for (let s = 1; s <= 5; s++) {
+    const el = document.getElementById(uid + '_s' + s);
+    if (el) el.style.color = s <= score ? '#fa8c16' : '#ddd';
+  }
+  const text = document.getElementById(uid + '_score_text');
+  if (text) text.textContent = score >= 5 ? '非常准确' : score >= 4 ? '较准确' : score >= 3 ? '一般' : score >= 2 ? '不太准确' : '完全不准确';
+};
+window.submitInlineFeedback = async function(uid, scene, question, aiAnswer) {
+  const statusEl = document.getElementById(uid + '_status');
+  if (!statusEl) return;
+  const fb = window['_fb_'+uid] || { score: 0 };
+  if (fb.score === 0) { statusEl.textContent = '请先评分'; statusEl.style.color = '#ff4d4f'; return; }
+  const body = {
+    场景: scene,
+    问题: question,
+    AI回答: aiAnswer,
+    评分: fb.score,
+    是否准确: document.getElementById(uid + '_accurate')?.checked !== false,
+    工程师纠错: document.getElementById(uid + '_correction')?.value || ''
+  };
+  statusEl.textContent = '提交中...';
+  statusEl.style.color = '#999';
+  try {
+    const r = await fetch(API_BASE + '/api/v1/engineer/feedback/submit', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + getToken(), 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const j = await r.json();
+    if (j.code === 200) {
+      statusEl.textContent = '评价已提交，感谢反馈！';
+      statusEl.style.color = '#52c41a';
+    } else {
+      statusEl.textContent = '提交失败：' + (j.msg || '未知错误');
+      statusEl.style.color = '#ff4d4f';
+    }
+  } catch (e) {
+    statusEl.textContent = '提交失败：' + e.message;
+    statusEl.style.color = '#ff4d4f';
+  }
+};
+
+// ========== 黄金问答库 (Phase 3) ==========
+async function loadGoldenQA(){
+  const container=document.getElementById('gqa_list');
+  if(!container)return;
+  const scene=document.getElementById('gqa_scene')?.value||'';
+  try{
+    const r=await fetch(API_BASE+'/api/v1/admin/golden-qa?page=1&page_size=30&scene='+scene,{headers:{'Authorization':'Bearer '+getToken()}});
+    const j=await r.json();
+    if(j.code===200&&j.data){
+      if(j.data.items.length===0){container.innerHTML='<div class="empty-state">暂无黄金问答</div>';return;}
+      let html='<div class="card">共'+j.data.total+'条</div><div class="table-wrapper"><table class="data-table"><tr><th>ID</th><th>问题</th><th>标准答案</th><th>场景</th></tr>';
+      j.data.items.forEach(q=>{html+='<tr><td>'+q.id+'</td><td>'+(q.问题||'-').substring(0,50)+'</td><td>'+(q.标准答案||'-').substring(0,60)+'</td><td>'+(q.场景||'-')+'</td></tr>'});
+      html+='</table></div>';container.innerHTML=html;
+    }
+  }catch(e){container.innerHTML='<div class="empty-state">加载失败</div>';}
+}
+async function refreshGoldenQA(){
+  try{
+    const r=await fetch(API_BASE+'/api/v1/admin/golden-qa/refresh',{method:'POST',headers:{'Authorization':'Bearer '+getToken()}});
+    const j=await r.json();
+    if(j.code===200)showToast('success','黄金问答缓存已同步');
+    else showToast('error','同步失败');
+  }catch(e){showToast('error',e.message);}
+}
+
+// ========== 审计日志 (Phase 6) ==========
+async function loadAuditLogs(){
+  const container=document.getElementById('audit_list');
+  if(!container)return;
+  const type=document.getElementById('audit_type')?.value||'';
+  try{
+    const r=await fetch(API_BASE+'/api/v1/admin/audit-logs?page=1&page_size=50&action_type='+type,{headers:{'Authorization':'Bearer '+getToken()}});
+    const j=await r.json();
+    if(j.code===200&&j.data){
+      if(j.data.items.length===0){container.innerHTML='<div class="empty-state">暂无审计日志</div>';return;}
+      let html='<div class="table-wrapper"><table class="data-table"><tr><th>时间</th><th>用户</th><th>操作类型</th><th>操作详情</th></tr>';
+      j.data.items.forEach(l=>{html+='<tr><td>'+(l.时间||'-')+'</td><td>'+(l.用户名||'-')+'</td><td>'+l.操作类型+'</td><td>'+(l.操作详情||'-').substring(0,80)+'</td></tr>'});
+      html+='</table></div>';container.innerHTML=html;
+    }
+  }catch(e){container.innerHTML='<div class="empty-state">加载失败</div>';}
+}
+
+// ========== Text2SQL (Phase 5) ==========
+async function doText2SQL(){
+  const resultEl=document.getElementById('t2s_result');
+  const dataEl=document.getElementById('t2s_data');
+  const query=document.getElementById('t2s_query').value;
+  if(!query){showToast('warn','请输入查询问题');return;}
+  resultEl.style.display='block';resultEl.innerHTML='<div class="loading">AI 生成 SQL 中...</div>';
+  dataEl.style.display='none';
+  try{
+    const r=await fetch(API_BASE+'/api/v1/leader/dashboard/query',{method:'POST',headers:{'Authorization':'Bearer '+getToken(),'Content-Type':'application/json'},body:JSON.stringify({问题:query})});
+    const j=await r.json();
+    if(j.code===200&&j.data){
+      resultEl.innerHTML='<div class="card-title">生成的 SQL</div><code style="display:block;padding:8px;background:#1e1e1e;color:#d4d4d4;border-radius:6px;font-size:13px">'+j.data.sql+'</code><div class="card-title" style="margin-top:8px">AI 回答</div><div>'+j.data.answer+'</div>';
+      if(j.data.data&&j.data.data.length){
+        const keys=Object.keys(j.data.data[0]);
+        let html='<div class="card-title">查询结果（'+j.data.data.length+'条）</div><table class="data-table"><tr>'+keys.map(k=>'<th>'+k+'</th>').join('')+'</tr>';
+        j.data.data.forEach(row=>{html+='<tr>'+keys.map(k=>'<td>'+(row[k]===null?'-':String(row[k]).substring(0,100))+'</td>').join('')+'</tr>'});
+        html+='</table>';dataEl.style.display='block';dataEl.innerHTML=html;
+      }else{dataEl.style.display='none';}
+    }else{resultEl.innerHTML='<div class="empty-state">查询失败：'+(j.msg||'')+'</div>';}
+  }catch(e){resultEl.innerHTML='<div class="empty-state">查询出错：'+e.message+'</div>';}
+}
 
 // ========== 登录逻辑 ==========
 function renderLogin(){
@@ -1648,8 +2288,23 @@ function renderLogin(){
         <div id="login_error" class="form-error"></div>
         <button class="btn block" onclick="doLogin()">登 录</button>
         <div class="link">还没有账号？<a onclick="showRegister()">立即注册</a></div>
+        <div class="quick-login">
+          <div class="quick-title">快捷登录</div>
+          <div class="quick-users" id="quick_users">
+            <div class="quick-user" onclick="quickLogin('admin','admin123')"><span class="avatar">管</span><span class="name">管理员</span></div>
+            <div class="quick-user" onclick="quickLogin('engineer1','123456')"><span class="avatar">工</span><span class="name">张工</span></div>
+            <div class="quick-user" onclick="quickLogin('supervisor1','123456')"><span class="avatar">主</span><span class="name">赵主管</span></div>
+            <div class="quick-user" onclick="quickLogin('purchaser1','123456')"><span class="avatar">采</span><span class="name">刘采购</span></div>
+            <div class="quick-user" onclick="quickLogin('leader1','123456')"><span class="avatar">领</span><span class="name">陈领导</span></div>
+          </div>
+        </div>
       </div>
     </div>`;
+}
+function quickLogin(username, password){
+  document.getElementById('login_user').value = username;
+  document.getElementById('login_pass').value = password;
+  doLogin();
 }
 function showRegister(){
   document.getElementById('app').innerHTML=`
@@ -1673,10 +2328,10 @@ window.doLogin=async function(){
   const btn=document.querySelector('.login-card .btn');
   if(btn){btn.disabled=true;btn.textContent='登录中...';}
   try{
-    const r=await apiPost('/api/v1/common/auth/login',{用户名:u,密码:p});
+    const r=await apiPost('/api/v1/common/auth/login',{username:u,password:p});
     if(r.code===200&&r.data){
-      localStorage.setItem('token',r.data.访问令牌);
-      saveUser({用户名:r.data.用户名,真实姓名:r.data.真实姓名||r.data.用户名,角色:r.data.角色,用户ID:r.data.用户ID});
+      localStorage.setItem('token',r.data.access_token);
+      saveUser({用户名:r.data.username,真实姓名:r.data.real_name||r.data.username,角色:r.data.role,用户ID:r.data.user_id});
       showToast('登录成功','success');
       renderMain();
     }else{

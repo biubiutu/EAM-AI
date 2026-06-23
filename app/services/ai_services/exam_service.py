@@ -1,4 +1,14 @@
+"""
+考试评价服务
+"""
+import json
+import logging
 from app.utils.ai_client import ai_client
+from app.core.database import async_session_factory
+from app.models.user import ExamRecord, User
+from app.services.engineer_level_service import engineer_level_service
+
+logger = logging.getLogger(__name__)
 
 
 class ExamService:
@@ -78,5 +88,57 @@ class ExamService:
 
         return await ai_client.chat_with_json(prompt)
 
+    async def persist_exam(self, user_id: int, exam_type: str, scene: str,
+                            total_score: int, detail: list) -> int:
+        """将考核结果写入数据库"""
+        async with async_session_factory() as session:
+            record = ExamRecord(
+                用户ID=user_id,
+                考核类型=exam_type,
+                考核场景=scene,
+                总得分=total_score,
+                考核详情=json.dumps(detail, ensure_ascii=False),
+                状态="completed",
+            )
+            session.add(record)
 
+            # 更新经验值
+            user_result = await session.execute(
+                sqlalchemy.select(User).where(User.id == user_id)
+            )
+            user = user_result.scalar_one_or_none()
+            if user:
+                user.经验值 = (user.经验值 or 0) + total_score
+
+            await session.commit()
+
+            # 自动晋级检查
+            try:
+                new_level = await engineer_level_service.check_and_promote(user_id)
+                if new_level:
+                    logger.info(f"用户 {user_id} 考核后晋级为 {new_level}")
+            except Exception as e:
+                logger.warning("晋级检查失败: %s", e)
+
+            return record.id
+
+    async def get_history(self, user_id: int, limit: int = 20) -> list[dict]:
+        from sqlalchemy import select, desc
+        async with async_session_factory() as session:
+            result = await session.execute(
+                select(ExamRecord).where(ExamRecord.用户ID == user_id)
+                .order_by(desc(ExamRecord.id)).limit(limit)
+            )
+            records = result.scalars().all()
+            return [{
+                "id": r.id,
+                "考核类型": r.考核类型,
+                "考核场景": r.考核场景,
+                "总得分": r.总得分,
+                "状态": r.状态,
+                "created_at": str(r.created_at),
+            } for r in records]
+
+
+import sqlalchemy
 exam_service = ExamService()

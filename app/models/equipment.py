@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey, JSON
+from sqlalchemy import Column, String, Integer, Float, Text, ForeignKey, JSON, DateTime
 from sqlalchemy.orm import relationship
 from app.models.base import Base, TimestampMixin
 
@@ -13,7 +13,11 @@ class Equipment(Base, TimestampMixin):
     所属厂区 = Column("所属厂区", String(50), comment="所属厂区")
     所属车间 = Column("所属车间", String(100), comment="所属车间")
     所属产线 = Column("所属产线", String(100), comment="所属产线")
-    设备状态 = Column("设备状态", String(20), default="running", comment="状态")
+    设备状态 = Column("设备状态", String(20), default="in_use", comment="状态(in_use/in_storage/pending_repair/under_repair/scrapped)")
+    入库放置地点 = Column("入库放置地点", String(200), comment="入库放置地点")
+    报废地点 = Column("报废地点", String(200), comment="报废地点")
+    状态变更时间 = Column("状态变更时间", DateTime, comment="状态变更时间")
+    状态备注 = Column("状态备注", String(500), comment="状态备注")
     采购日期 = Column("采购日期", String(20), comment="采购日期")
     质保到期日 = Column("质保到期日", String(20), comment="质保到期日")
     制造商 = Column("制造商", String(200), comment="制造商")
